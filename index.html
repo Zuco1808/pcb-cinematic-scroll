@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EMS/SMD PCB Montaža — Cinematic</title>
+  <meta name="description" content="Precizna EMS i SMD montaža matičnih ploča — cinematic scroll animacija" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    :root {
+      --green: #00ff41;
+      --blue:  #4fc3f7;
+      --dark:  #0a0a0f;
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--dark);
+      overflow-x: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── CANVAS ── */
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    /* ── LOADING SCREEN ── */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .loading-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      color: var(--green);
+      text-transform: uppercase;
+    }
+
+    .loading-bar-wrap {
+      width: 180px;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    #loading-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--green);
+      transition: width 0.3s ease;
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    #loading-pct {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.2em;
+    }
+
+    /* ── SCROLL SECTIONS ── */
+    #scroll-sections {
+      position: relative;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .section {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 0 8vw;
+    }
+
+    .section--hero     { justify-content: flex-start; }
+    .section--trans    { justify-content: flex-end;   }
+    .section--detail   { justify-content: flex-start; align-items: flex-end; padding-bottom: 10vh; }
+    .section--cta      { justify-content: center; flex-direction: column; align-items: center; }
+
+    .section__content {
+      max-width: 480px;
+      opacity: 0;
+      transform: translateY(28px);
+    }
+
+    .section--cta .section__content {
+      text-align: center;
+      max-width: 560px;
+    }
+
+    .section__label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      color: var(--green);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section__label::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--green);
+    }
+
+    .section--cta .section__label::before { display: none; }
+
+    .section__title {
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .section__body {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.75;
+      max-width: 380px;
+    }
+
+    .section--cta .section__body { max-width: 100%; }
+
+    /* ── CTA BUTTON ── */
+    .cta-button {
+      pointer-events: all;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 2.5rem;
+      padding: 0.9rem 2.2rem;
+      background: transparent;
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+    }
+
+    .cta-button:hover {
+      background: var(--green);
+      color: #000;
+      box-shadow: 0 0 30px rgba(0,255,65,0.3);
+    }
+
+    .cta-button svg { transition: transform 0.25s; }
+    .cta-button:hover svg { transform: translateX(4px); }
+
+    /* ── SCROLL HINT ── */
+    #scroll-hint {
+      position: fixed;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    #scroll-hint span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.35em;
+    }
+
+    .scroll-hint__line {
+      width: 1px;
+      height: 36px;
+      background: linear-gradient(to bottom, var(--green), transparent);
+      animation: scrollPulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+      50%       { opacity: 1;   transform: scaleY(1.2); }
+    }
+
+    /* ── MUTE BUTTON ── */
+    #mute-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 50;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(12px);
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    #mute-btn:hover { border-color: var(--green); color: var(--green); }
+    #mute-btn.muted { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.2); }
+
+    /* ── PHASE INDICATOR ── */
+    #phase-indicator {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .phase-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: background 0.4s, transform 0.4s;
+    }
+
+    .phase-dot.active {
+      background: var(--green);
+      transform: scale(1.8);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* ── STATS (debug only) ── */
+    #stats-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 999;
+    }
+
+    /* ── PREFERS REDUCED MOTION ── */
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-hint__line { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <p class="loading-logo">PCB Cinematic</p>
+    <div class="loading-bar-wrap">
+      <div id="loading-bar"></div>
+    </div>
+    <span id="loading-pct">0%</span>
+  </div>
+
+  <!-- Three.js Canvas -->
+  <div id="canvas-container" aria-label="3D animacija PCB montaže" role="img"></div>
+
+  <!-- Scroll Sections -->
+  <div id="scroll-sections">
+
+    <section class="section section--hero" id="s-hero">
+      <div class="section__content">
+        <p class="section__label">Faza 01 — Pregled</p>
+        <h1 class="section__title">Preciznost<br>na mikrometarskom<br>nivou</h1>
+        <p class="section__body">
+          EMS i SMD montaža kombinuju robotsku preciznost
+          i ljudsku ekspertizu u jednom neprekinutom procesu.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section--trans" id="s-trans">
+      <div class="section__content">
+        <p class="section__label">Faza 02 — Proces</p>
+        <h2 class="section__title">Od paste<br>do gotovog<br>sklopa</h2>
+        <p class="section__body">
+          Solder pasta, pick &amp; place automatizacija,
+          reflow pećnica — svaki korak kontrolisan do mikrograma.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section--detail" id="s-detail">
+      <div class="section__content">
+        <p class="section__label">Faza 03 — Detalj</p>
+        <h2 class="section__title">0402 komponente.<br>Ručna<br>preciznost.</h2>
+        <p class="section__body">
+          SMD komponente dimenzija 0,4 × 0,2 mm
+          postavljaju se s tolerancijom manjom od 50μm.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section--cta" id="s-cta">
+      <div class="section__content">
+        <p class="section__label">Faza 04 — Saradnja</p>
+        <h2 class="section__title">Vaš projekat.<br>Naša preciznost.</h2>
+        <p class="section__body">
+          Kontaktirajte nas za besplatnu tehničku konsultaciju
+          i procjenu vašeg PCB projekta.
+        </p>
+        <button class="cta-button">
+          Zatražite ponudu
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Scroll Hint -->
+  <div id="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-hint__line"></div>
+  </div>
+
+  <!-- Phase Indicator -->
+  <div id="phase-indicator">
+    <div class="phase-dot active" data-phase="0"></div>
+    <div class="phase-dot" data-phase="1"></div>
+    <div class="phase-dot" data-phase="2"></div>
+    <div class="phase-dot" data-phase="3"></div>
+  </div>
+
+  <!-- Mute Button -->
+  <button id="mute-btn" aria-label="Uključi/isključi zvuk">
+    <svg id="mute-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.5">
+      <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+      <path class="sound-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    </svg>
+  </button>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
