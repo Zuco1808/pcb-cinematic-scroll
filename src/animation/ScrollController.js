@@ -27,16 +27,16 @@ export class ScrollController {
       .to(this.proxy,{fov:45,keyI:15,fillI:5,rimI:8,underI:3,ease:'none',onUpdate:()=>this._sync()},'<');
     // Features
     gsap.timeline({scrollTrigger:{trigger:'#s-features',start:'top bottom',end:'bottom top',scrub:2,invalidateOnRefresh:true,onEnter:()=>this._phase('transition'),onEnterBack:()=>this._phase('transition')}})
-      .to(camera.position,{x:-2,y:3,z:6,ease:'power1.inOut'})
+      .to(camera.position,{x:-1.5,y:4,z:7,ease:'power1.inOut'})
       .to(camera.rotation,{x:-.2,y:.4,z:.1,ease:'power1.inOut'},'<')
       .to(pivot.rotation,{y:.3,ease:'sine.inOut'},'<')
       .to(this.proxy,{fov:40,keyI:18,fillI:4,rimI:10,underI:4,ease:'sine.inOut',onUpdate:()=>this._sync()},'<');
     // How it works
     gsap.timeline({scrollTrigger:{trigger:'#s-how',start:'top bottom',end:'bottom top',scrub:2.5,invalidateOnRefresh:true,onEnter:()=>this._phase('detail'),onEnterBack:()=>this._phase('detail')}})
-      .to(camera.position,{x:1.5,y:.8,z:2.5,ease:'expo.inOut'})
-      .to(camera.rotation,{x:-.1,y:.3,z:0,ease:'expo.inOut'},'<')
+      .to(camera.position,{x:1.0,y:2.0,z:5.0,ease:'expo.inOut'})
+      .to(camera.rotation,{x:-.25,y:.2,z:0,ease:'expo.inOut'},'<')
       .to(pivot.rotation,{y:-.2,ease:'expo.inOut'},'<')
-      .to(this.proxy,{fov:35,keyI:22,fillI:1.5,rimI:14,underI:5,ease:'expo.inOut',onUpdate:()=>this._sync()},'<');
+      .to(this.proxy,{fov:42,keyI:18,fillI:3,rimI:10,underI:3,ease:'expo.inOut',onUpdate:()=>this._sync()},'<');
     // CTA
     gsap.timeline({scrollTrigger:{trigger:'#s-cta',start:'top bottom',end:'center center',scrub:1.8,invalidateOnRefresh:true,onEnter:()=>this._phase('cta'),onEnterBack:()=>this._phase('cta')}})
       .to(camera.position,{x:0,y:12,z:18,ease:'power3.out'})
