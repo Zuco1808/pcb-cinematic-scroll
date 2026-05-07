@@ -41,7 +41,7 @@
     }
 
     /* ── CANVAS (fixed behind everything) ─────────────── */
-    #cv{position:fixed;top:0;left:0;right:0;height:100vh;z-index:0;pointer-events:none;transition:opacity .5s ease}
+    #cv{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:0;pointer-events:none;transition:opacity .5s ease}
 
     /* ── LOADING ────────────────────────────────────────── */
     #ls{
@@ -352,13 +352,7 @@
     .cta-trust-item svg{color:var(--green);flex-shrink:0}
 
     /* ── FOOTER ─────────────────────────────────────────── */
-    footer{
-      position:relative;z-index:10;pointer-events:all;
-      isolation:isolate;
-      background:transparent;
-      border-top:1px solid var(--border);
-      padding:3.5rem 5% 2rem;
-    }
+    footer{position:relative;z-index:500;pointer-events:all;background:rgba(17,24,39,.80);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.15);padding:3.5rem 5% 2rem}
     .footer-top{
       display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 1fr;
       gap:3rem;padding-bottom:2.5rem;
@@ -366,19 +360,19 @@
     }
     .footer-logo{display:flex;align-items:center;gap:.55rem;margin-bottom:.9rem}
     .footer-logo img{height:24px}
-    .footer-logo-text{font-size:.85rem;font-weight:700;color:#ffffff;letter-spacing:.04em}
-    .footer-desc{font-size:.76rem;color:rgba(255,255,255,.55);line-height:1.7;max-width:220px;margin-bottom:1.2rem}
+    .footer-logo-text{font-size:.85rem;font-weight:700;color:#ffffff;letter-spacing:.04em;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+    .footer-desc{font-size:.76rem;color:rgba(255,255,255,.75);line-height:1.7;max-width:220px;margin-bottom:1.2rem}
     .footer-certs{display:flex;gap:.4rem;flex-wrap:wrap}
-    .fcert{font-size:.55rem;color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.12);border-radius:3px;padding:.15rem .4rem;letter-spacing:.06em}
-    .footer-col h5{font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:1.1rem}
+    .fcert{font-size:.55rem;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);border-radius:3px;padding:.15rem .4rem;letter-spacing:.06em}
+    .footer-col h5{font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:1.1rem}
     .footer-col ul{list-style:none}
     .footer-col li{margin-bottom:.55rem}
-    .footer-col a{font-size:.77rem;color:rgba(255,255,255,.5);text-decoration:none;transition:color .15s}
+    .footer-col a{font-size:.77rem;color:rgba(255,255,255,.7);text-decoration:none;transition:color .15s}
     .footer-col a:hover{color:#ffffff}
     .footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:1.8rem;flex-wrap:wrap;gap:.6rem}
-    .footer-bottom p{font-size:.71rem;color:rgba(255,255,255,.3)}
+    .footer-bottom p{font-size:.71rem;color:rgba(255,255,255,.5)}
     .flegal{display:flex;gap:1.2rem}
-    .flegal a{font-size:.71rem;color:rgba(255,255,255,.3);text-decoration:none;transition:color .15s}
+    .flegal a{font-size:.71rem;color:rgba(255,255,255,.5);text-decoration:none;transition:color .15s}
     .flegal a:hover{color:var(--text)}
 
     /* ── OVERLAYS ────────────────────────────────────── */
