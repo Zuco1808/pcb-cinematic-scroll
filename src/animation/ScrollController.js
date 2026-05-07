@@ -162,23 +162,53 @@ export class ScrollController {
   }
 
   _setupTextAnimations() {
-    const sections = ['#s-hero', '#s-trans', '#s-detail', '#s-cta'];
-    sections.forEach(id => {
-      const el = document.querySelector(`${id} .section__content`);
-      if (!el) return;
+    // Section labels
+    document.querySelectorAll('.section-label').forEach(el => {
       gsap.to(el, {
-        opacity: 1,
-        y: 0,
-        duration: 0.9,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: id,
-          start: 'top 75%',
-          end: 'bottom 25%',
-          toggleActions: 'play reverse play reverse',
-          invalidateOnRefresh: true,
-        }
+        opacity: 1, y: 0, duration: 0.7, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', invalidateOnRefresh: true }
       });
+    });
+
+    // Section headings
+    document.querySelectorAll('.section h2').forEach(el => {
+      gsap.to(el, {
+        opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 82%', invalidateOnRefresh: true }
+      });
+    });
+
+    // Section subtitles
+    document.querySelectorAll('.section-sub').forEach(el => {
+      gsap.to(el, {
+        opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.1,
+        scrollTrigger: { trigger: el, start: 'top 82%', invalidateOnRefresh: true }
+      });
+    });
+
+    // Process steps — stagger
+    gsap.to('.process-step', {
+      opacity: 1, x: 0, duration: 0.7, ease: 'power2.out',
+      stagger: 0.12,
+      scrollTrigger: { trigger: '.process-steps', start: 'top 75%', invalidateOnRefresh: true }
+    });
+
+    // Features grid
+    gsap.to('.features-grid', {
+      opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
+      scrollTrigger: { trigger: '.features-grid', start: 'top 80%', invalidateOnRefresh: true }
+    });
+
+    // Upload box
+    gsap.to('.upload-box', {
+      opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+      scrollTrigger: { trigger: '.upload-box', start: 'top 80%', invalidateOnRefresh: true }
+    });
+
+    // Cert row
+    gsap.to('#cert-row', {
+      opacity: 1, duration: 0.8, delay: 0.3,
+      scrollTrigger: { trigger: '#cert-row', start: 'top 90%', invalidateOnRefresh: true }
     });
   }
 
