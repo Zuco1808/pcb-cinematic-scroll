@@ -10,12 +10,23 @@ export class ProceduralPCB {
   }
 
   build() {
-    // Više layera kao na slici — 7 pločica u stogu
     this._buildStack();
-    this.scene.add(this.group);
-    // Rotacija za izometrijski view kao na slici
+
+    // Centriraj grupu PRIJE rotacije
+    const box = new THREE.Box3().setFromObject(this.group);
+    const centre = box.getCenter(new THREE.Vector3());
+    // Pomakni sve objekte da je centar na (0,0,0)
+    this.group.children.forEach(child => {
+      child.position.x -= centre.x;
+      child.position.y -= centre.y;
+      child.position.z -= centre.z;
+    });
+
+    // Rotacija za izometrijski view
     this.group.rotation.x = 0.3;
     this.group.rotation.y = -0.5;
+
+    this.scene.add(this.group);
     return this.group;
   }
 
