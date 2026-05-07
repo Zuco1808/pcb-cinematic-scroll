@@ -3,7 +3,7 @@ import * as THREE from 'three';
 
 export function setupLighting(scene) {
   // Ambient — minimalan
-  const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+  const ambient = new THREE.AmbientLight(0xffffff, 1.2);
   scene.add(ambient);
 
   // Key Light — hladno bijela, odozgo-lijevo

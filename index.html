@@ -67,9 +67,8 @@
     #canvas-container {
       position: fixed;
       inset: 0;
-      z-index: 2;          /* Iznad pozadine */
+      z-index: 0;
       pointer-events: none;
-      opacity: 1;
     }
 
     /* ── LOADING ─────────────────────────────────────── */
@@ -218,7 +217,7 @@
     /* ── PAGE WRAPPER ────────────────────────────────── */
     #page {
       position: relative;
-      z-index: 5;          /* Tekst iznad canvasa */
+      z-index: 10;
       pointer-events: none;
     }
     #page a, #page button, #page input,
@@ -278,8 +277,7 @@
       grid-template-columns: 1fr 1fr;
       align-items: center;
       gap: 5rem;
-      background: linear-gradient(160deg, rgba(255,255,255,0.82) 0%, rgba(238,247,252,0.75) 100%);
-      backdrop-filter: blur(0px);
+      background: transparent;
     }
 
     .hero-left { opacity: 0; transform: translateY(24px); }
@@ -340,7 +338,7 @@
       font-size: .72rem;
       font-weight: 500;
       color: var(--gray-500);
-      background: rgba(248,250,252,0.88);
+      background: transparent;
       border: 1px solid var(--gray-200);
       border-radius: 100px;
       padding: .28rem .75rem;
@@ -477,7 +475,7 @@
       padding: 1.2rem 5vw;
       border-top: 1px solid var(--border-l);
       border-bottom: 1px solid var(--border-l);
-      background: rgba(248,250,252,0.88);
+      background: transparent;
       display: flex;
       align-items: center;
       gap: 2.5rem;
@@ -554,7 +552,7 @@
       flex-direction: row;
       gap: 6rem;
       align-items: center;
-      background: rgba(248,250,252,0.88);
+      background: transparent;
     }
     .s-process-l { flex: 1; min-width: 0; }
     .s-process-r { flex: 1; min-width: 0; opacity: 0; transform: translateY(20px); }
@@ -619,7 +617,7 @@
       justify-content: space-between;
       padding: 1.2rem 1.5rem;
       border-bottom: 1px solid var(--border-l);
-      background: rgba(248,250,252,0.88);
+      background: transparent;
     }
     .qc-title {
       font-size: .82rem;
@@ -650,7 +648,7 @@
       transition: background .2s;
       cursor: default;
     }
-    .qc-row:hover { background: rgba(248,250,252,0.88); }
+    .qc-row:hover { background: transparent; }
     .qc-icon {
       width: 30px; height: 30px;
       background: var(--tr-bg);
@@ -681,7 +679,7 @@
     .qc-cta .btn-primary { width: 100%; justify-content: center; }
 
     /* ── CAPABILITIES ────────────────────────────────── */
-    .s-caps { background: rgba(255,255,255,0.85); }
+    .s-caps { background: transparent; }
     .caps-top {
       display: flex;
       align-items: flex-end;
@@ -765,10 +763,10 @@
 
     /* ── CTA SECTION ─────────────────────────────────── */
     .s-cta {
-      background: linear-gradient(160deg, rgba(238,247,252,0.88) 0%, rgba(255,255,255,0.82) 60%);
+      background: transparent;
       align-items: center;
       text-align: center;
-      border-top: 1px solid var(--tr-ll);
+      border-top: none;
     }
     .s-cta .s-title { margin: 0 auto .9rem; }
     .s-cta .s-sub   { margin: 0 auto 2.5rem; }

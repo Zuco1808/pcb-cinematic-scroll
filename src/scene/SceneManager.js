@@ -52,8 +52,8 @@ export class SceneManager {
 
   _initScene() {
     this.scene = new THREE.Scene();
+    this.scene.background = null; // Proziran canvas
     // Bez foga na light theme — sakriva PCB
-    // this.scene.fog = new THREE.FogExp2(0xeef7fc, 0.020);
   }
 
   _initCamera() {

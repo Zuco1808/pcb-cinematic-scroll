@@ -44,6 +44,7 @@ export class LayerManager {
       metalness: 0.0,
       transparent: true,
       opacity: 0.0,
+      depthWrite: false,
     });
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(30, 20), planeMat);
     plane.position.z = -0.1;
