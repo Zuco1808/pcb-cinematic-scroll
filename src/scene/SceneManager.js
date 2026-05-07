@@ -38,7 +38,7 @@ export class SceneManager {
       antialias: true,
       powerPreference: 'high-performance',
       stencil: false,
-      alpha: true,
+      alpha: false,
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -52,7 +52,8 @@ export class SceneManager {
 
   _initScene() {
     this.scene = new THREE.Scene();
-    this.scene.background = null; // Proziran canvas
+    this.scene.background = new THREE.Color(0xdaeef8);
+    this.scene.fog = new THREE.FogExp2(0xdaeef8, 0.018); // Svijetlo plava
     // Bez foga na light theme — sakriva PCB
   }
 

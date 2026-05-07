@@ -112,9 +112,9 @@ export class ProceduralPCB {
     ];
     caps.forEach(([x, yy, z, r, h]) => this._addCapacitor(x, yy, z, r, h));
 
-    // ── ZLATNI HEADER PINOVI (dolje-lijevo) ──────────
-    this._buildGoldHeader(-1.8, base, 1.5, 10, 2);
-    this._buildGoldHeader( 0.5, base, 1.5, 8,  2);
+    // ── ZLATNI HEADER PINOVI — unutar pločice ────────
+    this._buildGoldHeader(-1.4, base, 1.3, 8, 2);
+    this._buildGoldHeader( 0.8, base, 1.3, 6, 2);
 
     // ── SMD REZISTORI ─────────────────────────────────
     for (let i = 0; i < 8; i++) {

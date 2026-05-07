@@ -6,13 +6,7 @@ import { UnrealBloomPass }  from 'three/examples/jsm/postprocessing/UnrealBloomP
 import { OutputPass }       from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 export function setupPostProcessing(renderer, scene, camera) {
-  // Alpha render target - proziran background
-  const rt = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
-    type: THREE.HalfFloatType,
-    format: THREE.RGBAFormat,
-    stencilBuffer: false,
-  });
-  const composer = new EffectComposer(renderer, rt);
+  const composer = new EffectComposer(renderer);
 
   // 1. Base render
   composer.addPass(new RenderPass(scene, camera));
