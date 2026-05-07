@@ -29,7 +29,7 @@ export class ProceduralPCB {
     // Osnovna pločica
     const geo = new THREE.BoxGeometry(7.2, 0.12, 4.8);
     const mat = new THREE.MeshStandardMaterial({
-      color: 0x0d1b2a,      // Tamno plava/navy — STM stil
+      color: 0x1a3a5c,      // Srednje plava — kontrast na bijeloj
       roughness: 0.35,
       metalness: 0.08,
       envMapIntensity: 0.6,
@@ -330,7 +330,7 @@ export class ProceduralPCB {
       const h = 0.28 + i * 0.04;
       const r = 0.1 + (i % 2) * 0.02;
       const capMat = new THREE.MeshStandardMaterial({
-        color: [0x1a3a8a, 0x8a1a1a, 0x1a6a1a][i % 3],
+        color: [0x2a5ab0, 0xb03030, 0x2a8a2a][i % 3],
         roughness: 0.5, metalness: 0.1
       });
       const cap = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), capMat);
