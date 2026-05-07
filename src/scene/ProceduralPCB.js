@@ -46,7 +46,7 @@ export class ProceduralPCB {
 
   _buildLayer(y, isTop, index) {
     // FR4 supstrat — zeleni
-    const geo = new THREE.BoxGeometry(5.0, 0.10, 4.0);
+    const geo = new THREE.BoxGeometry(3.5, 0.10, 2.8);
     const mat = new THREE.MeshStandardMaterial({
       color: isTop ? 0x2d8a2d : 0x1e6b1e,
       roughness: 0.35,
@@ -66,15 +66,15 @@ export class ProceduralPCB {
       metalness: 0.9,
     });
     // Lijeva i desna ivica
-    [-2.52, 2.52].forEach(x => {
-      const eg = new THREE.BoxGeometry(0.04, 0.10, 4.0);
+    [-1.77, 1.77].forEach(x => {
+      const eg = new THREE.BoxGeometry(0.04, 0.10, 2.8);
       const em = new THREE.Mesh(eg, edgeMat);
       em.position.set(x, y, 0);
       this.group.add(em);
     });
     // Prednja i zadnja ivica
-    [-2.02, 2.02].forEach(z => {
-      const eg = new THREE.BoxGeometry(5.0, 0.10, 0.04);
+    [-1.42, 1.42].forEach(z => {
+      const eg = new THREE.BoxGeometry(3.5, 0.10, 0.04);
       const em = new THREE.Mesh(eg, edgeMat);
       em.position.set(0, y, z);
       this.group.add(em);
@@ -293,7 +293,7 @@ export class ProceduralPCB {
   _buildMountingHoles(y) {
     const ringMat = new THREE.MeshStandardMaterial({ color: 0xD4AF37, roughness: 0.1, metalness: 1.0, side: THREE.DoubleSide });
     const holeMat = new THREE.MeshStandardMaterial({ color: 0x0a1a0a, roughness: 1.0 });
-    [[-2.3, -1.8], [2.3, -1.8], [-2.3, 1.8], [2.3, 1.8]].forEach(([x, z]) => {
+    [[-1.5, -1.2], [1.5, -1.2], [-1.5, 1.2], [1.5, 1.2]].forEach(([x, z]) => {
       const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.14, 12), holeMat);
       hole.position.set(x, y, z);
       this.group.add(hole);
@@ -307,7 +307,7 @@ export class ProceduralPCB {
   _buildStandoffs(count, gap) {
     const mat = new THREE.MeshStandardMaterial({ color: 0xC8941A, roughness: 0.15, metalness: 0.95 });
     const totalH = count * gap;
-    [[-2.3, -1.8], [2.3, -1.8], [-2.3, 1.8], [2.3, 1.8]].forEach(([x, z]) => {
+    [[-1.5, -1.2], [1.5, -1.2], [-1.5, 1.2], [1.5, 1.2]].forEach(([x, z]) => {
       const st = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, totalH, 8), mat);
       st.position.set(x, 0, z);
       this.group.add(st);

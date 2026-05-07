@@ -41,7 +41,7 @@
     }
 
     /* ── CANVAS (fixed behind everything) ─────────────── */
-    #cv{position:fixed;inset:0;z-index:0;pointer-events:none;transition:opacity .6s ease}
+    #cv{position:fixed;top:0;left:0;right:0;height:100vh;z-index:0;pointer-events:none;transition:opacity .5s ease}
 
     /* ── LOADING ────────────────────────────────────────── */
     #ls{
@@ -166,7 +166,7 @@
     /* Hero right — upload card */
     .hero-r{opacity:0;transform:translateY(24px)}
     .upload-card{
-      background:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.95);
       border:1px solid var(--border-l);
       border-radius:var(--radius-lg);
       overflow:hidden;
@@ -219,7 +219,7 @@
     /* ── TRUSTED STRIP ─────────────────────────────────── */
     .trusted{
       padding:1.2rem 5%;
-      background:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.95);
       border-top:1px solid var(--border);
       border-bottom:1px solid var(--border);
       display:flex;align-items:center;gap:3rem;overflow:hidden;
@@ -233,7 +233,6 @@
       padding:96px 5%;
       min-height:100vh;
       display:flex;flex-direction:column;justify-content:center;
-      backdrop-filter:blur(2px);
     }
     .eyebrow{
       display:flex;align-items:center;gap:.6rem;
@@ -278,7 +277,7 @@
       opacity:0;transform:translateY(18px);
     }
     .feat-card{
-      background:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.95);
       padding:1.8rem 1.6rem;
       transition:background .2s;
       position:relative;
@@ -300,14 +299,14 @@
     }
 
     /* ── HOW IT WORKS ─────────────────────────────────── */
-    .s-how{background:var(--bg)}
+    .s-how{background:#daeef8}
     .steps-grid{
       display:grid;grid-template-columns:repeat(4,1fr);
       gap:1.5rem;margin-top:1rem;
       opacity:0;transform:translateY(18px);
     }
     .step-card{
-      background:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.95);
       border:1px solid var(--border-l);
       border-radius:var(--radius-lg);
       padding:1.6rem 1.4rem;
@@ -367,19 +366,19 @@
     }
     .footer-logo{display:flex;align-items:center;gap:.55rem;margin-bottom:.9rem}
     .footer-logo img{height:24px}
-    .footer-logo-text{font-size:.85rem;font-weight:700;color:var(--text);letter-spacing:.04em}
-    .footer-desc{font-size:.76rem;color:var(--text-3);line-height:1.7;max-width:220px;margin-bottom:1.2rem}
+    .footer-logo-text{font-size:.85rem;font-weight:700;color:#ffffff;letter-spacing:.04em}
+    .footer-desc{font-size:.76rem;color:rgba(255,255,255,.55);line-height:1.7;max-width:220px;margin-bottom:1.2rem}
     .footer-certs{display:flex;gap:.4rem;flex-wrap:wrap}
-    .fcert{font-size:.55rem;color:var(--text-3);border:1px solid var(--border-l);border-radius:3px;padding:.15rem .4rem;letter-spacing:.06em}
-    .footer-col h5{font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text-2);margin-bottom:1.1rem}
+    .fcert{font-size:.55rem;color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.12);border-radius:3px;padding:.15rem .4rem;letter-spacing:.06em}
+    .footer-col h5{font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:1.1rem}
     .footer-col ul{list-style:none}
     .footer-col li{margin-bottom:.55rem}
-    .footer-col a{font-size:.77rem;color:var(--text-3);text-decoration:none;transition:color .15s}
-    .footer-col a:hover{color:var(--text)}
+    .footer-col a{font-size:.77rem;color:rgba(255,255,255,.5);text-decoration:none;transition:color .15s}
+    .footer-col a:hover{color:#ffffff}
     .footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:1.8rem;flex-wrap:wrap;gap:.6rem}
-    .footer-bottom p{font-size:.71rem;color:var(--text-3)}
+    .footer-bottom p{font-size:.71rem;color:rgba(255,255,255,.3)}
     .flegal{display:flex;gap:1.2rem}
-    .flegal a{font-size:.71rem;color:var(--text-3);text-decoration:none;transition:color .15s}
+    .flegal a{font-size:.71rem;color:rgba(255,255,255,.3);text-decoration:none;transition:color .15s}
     .flegal a:hover{color:var(--text)}
 
     /* ── OVERLAYS ────────────────────────────────────── */
@@ -693,7 +692,7 @@
     <div>
       <div class="footer-logo"><span class="footer-logo-text">TRING Complete Engineering</span></div>
       <p class="footer-desc">From design to production — instantly. Complete engineering solutions for PCB manufacturing and assembly.</p>
-      <div style="font-size:.65rem;font-weight:600;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.6rem">Certifications</div>
+      <div style="font-size:.65rem;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.6rem">Certifications</div>
       <div class="footer-certs">
         <span class="fcert">ISO 9001:2015</span>
         <span class="fcert">ISO 14001</span>
