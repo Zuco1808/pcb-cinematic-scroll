@@ -41,7 +41,7 @@
     }
 
     /* ── CANVAS (fixed behind everything) ─────────────── */
-    #cv{position:fixed;inset:0;z-index:0;pointer-events:none}
+    #cv{position:fixed;inset:0;z-index:0;pointer-events:none;transition:opacity .6s ease}
 
     /* ── LOADING ────────────────────────────────────────── */
     #ls{
@@ -233,6 +233,7 @@
       padding:96px 5%;
       min-height:100vh;
       display:flex;flex-direction:column;justify-content:center;
+      backdrop-filter:blur(2px);
     }
     .eyebrow{
       display:flex;align-items:center;gap:.6rem;
@@ -354,6 +355,7 @@
     /* ── FOOTER ─────────────────────────────────────────── */
     footer{
       position:relative;z-index:10;pointer-events:all;
+      isolation:isolate;
       background:transparent;
       border-top:1px solid var(--border);
       padding:3.5rem 5% 2rem;

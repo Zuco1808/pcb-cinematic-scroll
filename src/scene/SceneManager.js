@@ -75,6 +75,14 @@ export class SceneManager {
   }
 
   _startLoop() {
+    // Osiguraj da canvas ne ide ispod footera
+    const canvas = this.renderer.domElement;
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+
     const loop = () => {
       this._rafId      = requestAnimationFrame(loop);
       this.deltaTime   = this.clock.getDelta();

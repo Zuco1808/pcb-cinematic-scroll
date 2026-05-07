@@ -29,8 +29,8 @@ export class CameraRig {
       },
       cta: {
         pivotPos: { x: 0, y: 0, z: 0 },
-        camPos:   { x: 0, y: 4, z: 10 },
-        camRot:   { x: -0.28, y: 0, z: 0 },
+        camPos:   { x: 0, y: 12, z: 18 },
+        camRot:   { x: -0.5, y: 0, z: 0 },
         fov: 50
       }
     };

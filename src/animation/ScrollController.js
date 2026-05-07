@@ -39,8 +39,8 @@ export class ScrollController {
       .to(this.proxy,{fov:35,keyI:22,fillI:1.5,rimI:14,underI:5,ease:'expo.inOut',onUpdate:()=>this._sync()},'<');
     // CTA
     gsap.timeline({scrollTrigger:{trigger:'#s-cta',start:'top bottom',end:'center center',scrub:1.8,invalidateOnRefresh:true,onEnter:()=>this._phase('cta'),onEnterBack:()=>this._phase('cta')}})
-      .to(camera.position,{x:0,y:4,z:10,ease:'power3.out'})
-      .to(camera.rotation,{x:-.28,y:0,z:0,ease:'power3.out'},'<')
+      .to(camera.position,{x:0,y:12,z:18,ease:'power3.out'})
+      .to(camera.rotation,{x:-.5,y:0,z:0,ease:'power3.out'},'<')
       .to(pivot.rotation,{y:Math.PI*.12,ease:'power2.inOut'},'<')
       .to(this.proxy,{fov:50,keyI:10,fillI:4,rimI:6,underI:2,ease:'power3.out',onUpdate:()=>this._sync()},'<');
   }
