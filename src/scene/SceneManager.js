@@ -38,28 +38,30 @@ export class SceneManager {
       antialias: true,
       powerPreference: 'high-performance',
       stencil: false,
+      alpha: true,   // KRITIČNO: proziran canvas
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.4;
+    this.renderer.toneMappingExposure = 1.8;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.container.appendChild(this.renderer.domElement);
   }
 
   _initScene() {
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0xeef7fc, 0.020);
+    // Bez foga na light theme — sakriva PCB
+    // this.scene.fog = new THREE.FogExp2(0xeef7fc, 0.020);
   }
 
   _initCamera() {
     this.camera = new THREE.PerspectiveCamera(
       45, window.innerWidth / window.innerHeight, 0.1, 100
     );
-    this.camera.position.set(0, 8, 12);
-    this.camera.rotation.x = -0.45;
+    this.camera.position.set(0, 6, 9);
+    this.camera.rotation.x = -0.40;
   }
 
   setComposer(composer, bokeh = null) {

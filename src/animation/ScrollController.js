@@ -73,7 +73,7 @@ export class ScrollController {
         onEnterBack: () => this._onPhase('hero'),
       }
     })
-    .to(camera.position, { x: 0, y: 8, z: 12, ease: 'none' })
+    .to(camera.position, { x: 0, y: 6, z: 9, ease: 'none' })
     .to(camera.rotation, { x: -0.45, y: 0, z: 0, ease: 'none' }, '<')
     .to(pivot.position,  { x: 0, y: 0, z: 0, ease: 'none' }, '<')
     .to(pivot.rotation,  { y: 0, ease: 'none' }, '<')
@@ -137,7 +137,7 @@ export class ScrollController {
         onEnterBack: () => this._onPhase('cta'),
       }
     })
-    .to(camera.position, { x: 0, y: 4, z: 14, ease: 'power3.out' })
+    .to(camera.position, { x: 0, y: 3.5, z: 11, ease: 'power3.out' })
     .to(camera.rotation, { x: -0.28, y: 0, z: 0, ease: 'power3.out' }, '<')
     .to(pivot.rotation,  { y: Math.PI * 0.12, ease: 'power2.inOut' }, '<')
     .to(this.proxy, {

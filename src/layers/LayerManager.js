@@ -43,7 +43,7 @@ export class LayerManager {
       roughness: 1.0,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.0,
     });
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(30, 20), planeMat);
     plane.position.z = -0.1;
