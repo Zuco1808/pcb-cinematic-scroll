@@ -4,1134 +4,322 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TRING | Complete Engineering — PCB Manufacturing</title>
-  <meta name="description" content="Upload your PCB files and get real-time pricing, DFM validation, and global manufacturing — all in one platform."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-
     :root {
-      /* TRING brand */
-      --tr:         #5FABDB;
-      --tr-d:       #3d8ec2;
-      --tr-dd:      #2a6fa0;
-      --tr-l:       #8fcde8;
-      --tr-ll:      #c8e8f5;
-      --tr-bg:      #eef7fc;
-      --tr-10:      rgba(95,171,219,.10);
-      --tr-15:      rgba(95,171,219,.15);
-      --tr-25:      rgba(95,171,219,.25);
+      --tr:      #5FABDB;
+      --tr-d:    #3d8ec2;
+      --tr-10:   rgba(95,171,219,.10);
+      --tr-20:   rgba(95,171,219,.20);
+      --white:   #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100:#f3f4f6;
+      --gray-200:#e5e7eb;
+      --gray-300:#d1d5db;
+      --gray-400:#9ca3af;
+      --gray-500:#6b7280;
+      --gray-700:#374151;
+      --gray-900:#111827;
+      --radius:  8px;
+      --shadow:  0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,.10),0 4px 12px rgba(0,0,0,.06);
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',sans-serif;background:var(--white);color:var(--gray-900);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-      /* Neutrals — light theme */
-      --white:      #ffffff;
-      --gray-50:    #f8fafc;
-      --gray-100:   #f1f5f9;
-      --gray-200:   #e2e8f0;
-      --gray-300:   #cbd5e1;
-      --gray-400:   #94a3b8;
-      --gray-500:   #64748b;
-      --gray-700:   #334155;
-      --gray-900:   #0f172a;
+    /* ── CANVAS ─────────────────────────── */
+    #cv{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-      /* Semantic */
-      --bg:         var(--white);
-      --bg-soft:    var(--gray-50);
-      --bg-card:    var(--white);
-      --text:       var(--gray-900);
-      --text-2:     var(--gray-700);
-      --text-muted: var(--gray-500);
-      --border:     var(--gray-200);
-      --border-l:   var(--gray-100);
+    /* ── LOADING ────────────────────────── */
+    #ls{position:fixed;inset:0;z-index:999;background:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem}
+    .ll{display:flex;align-items:center;gap:.6rem}
+    .lm{width:32px;height:32px;background:var(--tr);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem}
+    .ln{font-weight:700;font-size:1rem;letter-spacing:.08em;color:var(--gray-900)}
+    .lb{width:140px;height:3px;background:var(--gray-200);border-radius:99px;overflow:hidden}
+    #lbf{height:100%;width:0;background:var(--tr);border-radius:99px;transition:width .2s}
+    #lp{font-size:.65rem;color:var(--gray-400);letter-spacing:.05em}
 
-      --mono: 'DM Mono', monospace;
-      --sans: 'DM Sans', sans-serif;
+    /* ── NAV ─────────────────────────────── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.95);border-bottom:1px solid var(--gray-100);backdrop-filter:blur(12px)}
+    .nl{display:flex;align-items:center;gap:.55rem;text-decoration:none}
+    .nm{width:28px;height:28px;background:var(--tr);border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.78rem}
+    .nt{font-weight:700;font-size:.92rem;letter-spacing:.06em;color:var(--gray-900)}
+    .nc{display:flex;gap:2rem;list-style:none}
+    .nc a{font-size:.82rem;font-weight:500;color:var(--gray-500);text-decoration:none;transition:color .15s}
+    .nc a:hover{color:var(--gray-900)}
+    .na{display:flex;align-items:center;gap:.5rem}
+    .btn-ghost{font-size:.82rem;font-weight:500;color:var(--gray-500);background:none;border:none;padding:.4rem .75rem;cursor:pointer;border-radius:var(--radius);transition:color .15s,background .15s}
+    .btn-ghost:hover{color:var(--gray-900);background:var(--gray-100)}
+    .btn-blue{font-size:.8rem;font-weight:600;padding:.45rem 1.1rem;background:var(--tr);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;text-decoration:none;transition:background .15s,box-shadow .15s}
+    .btn-blue:hover{background:var(--tr-d);box-shadow:0 4px 14px var(--tr-20)}
 
-      --radius-sm:  6px;
-      --radius:     10px;
-      --radius-lg:  16px;
-      --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-      --shadow:     0 4px 16px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
-      --shadow-lg:  0 12px 40px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.06);
-    }
+    /* ── PAGE ──────────────────────────── */
+    #page{position:relative;z-index:10;pointer-events:none}
+    #page a,#page button,#page input,#page label{pointer-events:all}
 
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--sans);
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
+    /* ── HERO ──────────────────────────── */
+    .hero{
+      min-height:100vh;
+      padding:80px 5% 60px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      align-items:center;
+      gap:4rem;
     }
+    .hl{opacity:0;transform:translateY(20px)}
+    .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .75rem;background:var(--tr-10);border:1px solid rgba(95,171,219,.3);border-radius:99px;font-size:.7rem;font-weight:500;color:var(--tr-d);margin-bottom:1.6rem}
+    .pill-dot{width:5px;height:5px;border-radius:50%;background:var(--tr);animation:blink 1.8s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .hero h1{font-size:clamp(2.2rem,4vw,3.8rem);font-weight:800;line-height:1.06;letter-spacing:-.03em;color:var(--gray-900);margin-bottom:1.2rem}
+    .hero h1 span{color:var(--tr)}
+    .hero p{font-size:.97rem;color:var(--gray-500);line-height:1.75;max-width:420px;margin-bottom:2rem}
+    .hbtns{display:flex;gap:.65rem;flex-wrap:wrap}
+    .btn-primary{display:inline-flex;align-items:center;gap:.45rem;padding:.7rem 1.5rem;background:var(--tr);color:#fff;font-size:.82rem;font-weight:600;border:none;border-radius:var(--radius);cursor:pointer;text-decoration:none;transition:background .15s,box-shadow .15s,transform .1s}
+    .btn-primary:hover{background:var(--tr-d);box-shadow:0 4px 18px var(--tr-20);transform:translateY(-1px)}
+    .btn-outline{display:inline-flex;align-items:center;gap:.45rem;padding:.7rem 1.3rem;background:#fff;color:var(--gray-700);font-size:.82rem;font-weight:500;border:1px solid var(--gray-200);border-radius:var(--radius);cursor:pointer;text-decoration:none;transition:border-color .15s,color .15s}
+    .btn-outline:hover{border-color:var(--tr);color:var(--tr)}
+    .htrust{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.8rem}
+    .tbadge{display:flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:500;color:var(--gray-500);background:var(--gray-50);border:1px solid var(--gray-200);border-radius:99px;padding:.25rem .7rem}
+    .tbadge-ck{width:13px;height:13px;background:var(--tr);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .tbadge-ck::after{content:'';width:4px;height:2.5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(0,-1px)}
 
-    /* ── CANVAS ─────────────────────────────────────── */
-    #canvas-container {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
+    /* Hero right – card */
+    .hr{opacity:0;transform:translateY(20px)}
+    .hcard{background:#fff;border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-lg);overflow:hidden}
+    .hcard-lbl{font-size:.68rem;font-weight:600;color:var(--gray-400);letter-spacing:.08em;text-transform:uppercase;padding:1.4rem 1.6rem .8rem}
+    .uzone{border:1.5px dashed var(--gray-300);border-radius:var(--radius);margin:0 1.2rem;padding:2rem 1.2rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+    .uzone:hover{border-color:var(--tr);background:var(--tr-10)}
+    .uicon{width:40px;height:40px;background:var(--tr-10);border:1px solid rgba(95,171,219,.25);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin:0 auto .8rem;color:var(--tr)}
+    .uzone h4{font-size:.86rem;font-weight:600;color:var(--gray-700);margin-bottom:.25rem}
+    .uzone p{font-size:.72rem;color:var(--gray-400);margin-bottom:.8rem}
+    .uchips{display:flex;gap:.35rem;justify-content:center;flex-wrap:wrap}
+    .uchip{font-size:.58rem;font-weight:600;color:var(--tr-d);background:var(--tr-10);border:1px solid rgba(95,171,219,.25);border-radius:4px;padding:.15rem .45rem;letter-spacing:.04em}
+    .ubtns{display:flex;gap:.5rem;padding:1rem 1.2rem .8rem}
+    .ubtns .btn-primary{flex:1;justify-content:center}
+    .hstats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--gray-100)}
+    .hstat{padding:1rem;text-align:center;border-right:1px solid var(--gray-100)}
+    .hstat:last-child{border-right:none}
+    .hstat-val{font-size:1.2rem;font-weight:700;color:var(--gray-900);letter-spacing:-.02em;line-height:1}
+    .hstat-val b{color:var(--tr);font-weight:700}
+    .hstat-lbl{font-size:.62rem;color:var(--gray-400);margin-top:.25rem;line-height:1.3}
 
-    /* ── LOADING ─────────────────────────────────────── */
-    #loading-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 500;
-      background: var(--white);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-    }
-    .load-brand {
-      display: flex;
-      align-items: center;
-      gap: .7rem;
-    }
-    .load-mark {
-      width: 36px; height: 36px;
-      background: var(--tr);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--mono);
-      font-size: .9rem;
-      font-weight: 500;
-      color: #fff;
-    }
-    .load-name {
-      font-family: var(--mono);
-      font-size: .85rem;
-      font-weight: 500;
-      letter-spacing: .25em;
-      color: var(--gray-900);
-      text-transform: uppercase;
-    }
-    .load-bar-wrap {
-      width: 160px; height: 2px;
-      background: var(--gray-200);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-    #loading-bar {
-      height: 100%;
-      width: 0%;
-      background: var(--tr);
-      border-radius: 99px;
-      transition: width .2s ease;
-    }
-    #loading-pct {
-      font-family: var(--mono);
-      font-size: .65rem;
-      color: var(--text-muted);
-      letter-spacing: .1em;
-    }
+    /* ── TRUSTED ────────────────────────── */
+    .trusted{padding:1rem 5%;background:var(--gray-50);border-top:1px solid var(--gray-100);border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:2.5rem;overflow:hidden}
+    .trusted-lbl{font-size:.67rem;font-weight:600;color:var(--gray-400);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+    .tlogos{display:flex;gap:2.5rem}
+    .tlogos span{font-size:.75rem;font-weight:700;color:var(--gray-300);letter-spacing:.04em;text-transform:uppercase}
 
-    /* ── NAV ─────────────────────────────────────────── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 200;
-      height: 64px;
-      padding: 0 5vw;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255,255,255,.88);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-l);
-      transition: box-shadow .3s;
-    }
-    nav.scrolled { box-shadow: 0 1px 20px rgba(0,0,0,.07); }
+    /* ── SECTIONS ───────────────────────── */
+    section.s{padding:88px 5%;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+    .eyebrow{display:flex;align-items:center;gap:.55rem;font-size:.65rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--tr);margin-bottom:.9rem;opacity:0;transform:translateY(12px)}
+    .eyebrow-bar{width:20px;height:2px;background:var(--tr);border-radius:1px}
+    .s-title{font-size:clamp(1.7rem,2.8vw,2.6rem);font-weight:800;letter-spacing:-.025em;line-height:1.1;color:var(--gray-900);margin-bottom:.8rem;opacity:0;transform:translateY(12px)}
+    .s-sub{font-size:.93rem;color:var(--gray-400);line-height:1.72;max-width:460px;margin-bottom:3rem;opacity:0;transform:translateY(12px)}
 
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      text-decoration: none;
-    }
-    .nav-logo-mark {
-      width: 30px; height: 30px;
-      background: var(--tr);
-      border-radius: 7px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--mono);
-      font-size: .8rem;
-      font-weight: 500;
-      color: #fff;
-    }
-    .nav-logo-text {
-      font-family: var(--mono);
-      font-size: .9rem;
-      font-weight: 500;
-      letter-spacing: .12em;
-      color: var(--gray-900);
-    }
+    /* ── PROCESS ────────────────────────── */
+    .s-process{flex-direction:row;align-items:center;gap:5rem;background:var(--gray-50)}
+    .sp-l{flex:1;min-width:0}
+    .sp-r{flex:1;min-width:0;opacity:0;transform:translateY(18px)}
+    .steps{display:flex;flex-direction:column}
+    .step{display:flex;gap:1.2rem;padding:1.2rem 0;border-bottom:1px solid var(--gray-100);opacity:0;transform:translateX(-12px)}
+    .step:last-child{border-bottom:none}
+    .snum{font-size:.62rem;font-weight:700;color:var(--tr);letter-spacing:.06em;min-width:20px;padding-top:.12rem}
+    .sbody h4{font-size:.85rem;font-weight:600;color:var(--gray-900);margin-bottom:.25rem}
+    .sbody p{font-size:.76rem;color:var(--gray-400);line-height:1.6}
+    .stags{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.5rem}
+    .stag{font-size:.58rem;font-weight:500;color:var(--gray-400);background:#fff;border:1px solid var(--gray-200);border-radius:4px;padding:.12rem .4rem}
 
-    .nav-links {
-      display: flex;
-      gap: 2.2rem;
-      list-style: none;
-    }
-    .nav-links a {
-      font-size: .83rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color .2s;
-    }
-    .nav-links a:hover { color: var(--gray-900); }
+    /* Quote card */
+    .qcard{background:#fff;border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-md);overflow:hidden}
+    .qcard-head{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.4rem;background:var(--gray-50);border-bottom:1px solid var(--gray-100)}
+    .qcard-title{font-size:.82rem;font-weight:600;color:var(--gray-700)}
+    .live{display:flex;align-items:center;gap:.3rem;font-size:.62rem;font-weight:600;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:99px;padding:.18rem .55rem}
+    .live-dot{width:5px;height:5px;border-radius:50%;background:#16a34a;animation:blink 1.4s ease-in-out infinite}
+    .qbody{padding:.8rem 1.4rem}
+    .qrow{display:flex;align-items:center;gap:.8rem;padding:.55rem .65rem;border-radius:6px;transition:background .15s;cursor:default}
+    .qrow:hover{background:var(--gray-50)}
+    .qicon{width:28px;height:28px;background:var(--tr-10);border:1px solid rgba(95,171,219,.2);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--tr);flex-shrink:0}
+    .qlbl{font-size:.78rem;color:var(--gray-400);flex:1}
+    .qval{font-size:.75rem;font-weight:600;color:var(--gray-700);font-variant-numeric:tabular-nums}
+    .qdiv{height:1px;background:var(--gray-100);margin:.6rem 0}
+    .qresult{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;background:var(--tr-10);border:1px solid rgba(95,171,219,.2);border-radius:8px;margin:.3rem 0 .8rem}
+    .qrlbl{font-size:.76rem;font-weight:500;color:var(--tr-d)}
+    .qrprice{font-size:1.45rem;font-weight:800;color:var(--tr-d);letter-spacing:-.02em}
+    .qfoot{padding:0 1.4rem 1.2rem}
+    .qfoot .btn-primary{width:100%;justify-content:center}
 
-    .nav-actions { display: flex; align-items: center; gap: .6rem; }
-    .btn-ghost-nav {
-      font-size: .82rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      background: none;
-      border: none;
-      padding: .4rem .8rem;
-      cursor: pointer;
-      border-radius: var(--radius-sm);
-      transition: color .2s, background .2s;
-    }
-    .btn-ghost-nav:hover { color: var(--gray-900); background: var(--gray-100); }
-    .btn-cta-nav {
-      font-family: var(--mono);
-      font-size: .72rem;
-      font-weight: 500;
-      letter-spacing: .06em;
-      padding: .48rem 1.1rem;
-      background: var(--tr);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      text-decoration: none;
-      transition: background .2s, box-shadow .2s;
-    }
-    .btn-cta-nav:hover { background: var(--tr-d); box-shadow: 0 4px 16px var(--tr-25); }
+    /* ── CAPABILITIES ───────────────────── */
+    .s-caps{background:#fff}
+    .caps-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:.5rem;flex-wrap:wrap;gap:1rem}
+    .cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--gray-200);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);opacity:0;transform:translateY(18px)}
+    .ccard{background:#fff;padding:1.6rem;transition:background .2s;position:relative;overflow:hidden}
+    .ccard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tr);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+    .ccard:hover{background:var(--gray-50)}
+    .ccard:hover::after{transform:scaleX(1)}
+    .cicon-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem}
+    .cicon{width:34px;height:34px;background:var(--tr-10);border:1px solid rgba(95,171,219,.2);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--tr)}
+    .ctag{font-size:.58rem;font-weight:600;color:var(--tr-d);background:var(--tr-10);border:1px solid rgba(95,171,219,.2);border-radius:4px;padding:.14rem .42rem;letter-spacing:.05em}
+    .ccard h4{font-size:.85rem;font-weight:600;color:var(--gray-900);margin-bottom:.35rem}
+    .ccard p{font-size:.76rem;color:var(--gray-400);line-height:1.65}
+    .cmetric{display:flex;align-items:center;gap:.35rem;font-size:.65rem;font-weight:600;color:var(--tr-d);margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--gray-100)}
+    .cmetric::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--tr);flex-shrink:0}
 
-    /* ── PAGE WRAPPER ────────────────────────────────── */
-    #page {
-      position: relative;
-      z-index: 10;
-      pointer-events: none;
-    }
-    #page a, #page button, #page input,
-    #page label, #page select { pointer-events: all; }
+    /* ── CTA ────────────────────────────── */
+    .s-cta{background:var(--gray-50);border-top:1px solid var(--gray-100);align-items:center;text-align:center}
+    .s-cta .s-title,.s-cta .s-sub{margin:0 auto}
+    .s-cta .s-sub{max-width:400px}
+    .ctacard{width:100%;max-width:480px;background:#fff;border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-md);padding:1.8rem;margin:0 auto 1.6rem;opacity:0;transform:translateY(16px);cursor:pointer;transition:border-color .2s,box-shadow .2s}
+    .ctacard:hover{border-color:var(--tr);box-shadow:0 8px 32px var(--tr-20)}
+    .ctacard .uicon{margin:0 auto .7rem}
+    .ctacard h4{font-size:.88rem;font-weight:600;color:var(--gray-700);margin-bottom:.25rem}
+    .ctacard p{font-size:.72rem;color:var(--gray-400);margin-bottom:.9rem}
+    .ctabtns{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+    .certs{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:2.2rem;opacity:0}
+    .cert{font-size:.62rem;font-weight:500;color:var(--gray-400);background:#fff;border:1px solid var(--gray-200);border-radius:99px;padding:.25rem .7rem}
 
-    /* ── BUTTONS ─────────────────────────────────────── */
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .72rem 1.6rem;
-      background: var(--tr);
-      color: #fff;
-      font-family: var(--mono);
-      font-size: .74rem;
-      font-weight: 500;
-      letter-spacing: .06em;
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      text-decoration: none;
-      transition: background .2s, box-shadow .2s, transform .15s;
-    }
-    .btn-primary:hover {
-      background: var(--tr-d);
-      box-shadow: 0 4px 20px var(--tr-25);
-      transform: translateY(-1px);
-    }
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .72rem 1.4rem;
-      background: var(--white);
-      color: var(--gray-700);
-      font-family: var(--mono);
-      font-size: .74rem;
-      font-weight: 500;
-      letter-spacing: .06em;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      text-decoration: none;
-      transition: border-color .2s, color .2s, box-shadow .2s;
-    }
-    .btn-secondary:hover {
-      border-color: var(--tr);
-      color: var(--tr-d);
-      box-shadow: var(--shadow-sm);
-    }
+    /* ── FOOTER ─────────────────────────── */
+    footer{position:relative;z-index:10;pointer-events:all;background:var(--gray-900);padding:3.5rem 5% 2rem}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid rgba(255,255,255,.07)}
+    .footer-brand p{font-size:.76rem;color:rgba(255,255,255,.35);line-height:1.7;margin-top:.8rem;max-width:200px}
+    .fcerts{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:1rem}
+    .fcert{font-size:.55rem;color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.1);border-radius:3px;padding:.15rem .4rem}
+    .footer-col h5{font-size:.6rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:1rem}
+    .footer-col ul{list-style:none}
+    .footer-col li{margin-bottom:.55rem}
+    .footer-col a{font-size:.76rem;color:rgba(255,255,255,.35);text-decoration:none;transition:color .15s}
+    .footer-col a:hover{color:rgba(255,255,255,.75)}
+    .footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:1.8rem;flex-wrap:wrap;gap:.6rem}
+    .footer-bottom p{font-size:.7rem;color:rgba(255,255,255,.18)}
+    .flegal{display:flex;gap:1.2rem}
+    .flegal a{font-size:.7rem;color:rgba(255,255,255,.18);text-decoration:none;transition:color .15s}
+    .flegal a:hover{color:rgba(255,255,255,.5)}
 
-    /* ── HERO ─────────────────────────────────────────── */
-    .hero {
-      min-height: 100vh;
-      padding: 80px 5vw 60px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center;
-      gap: 5rem;
-      background: transparent;
-    }
+    /* ── UI OVERLAYS ─────────────────────── */
+    #scroll-hint{position:fixed;bottom:2.2rem;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;align-items:center;gap:.4rem;pointer-events:none}
+    #scroll-hint span{font-size:.56rem;font-weight:500;color:rgba(95,171,219,.5);letter-spacing:.25em}
+    .sln{width:1px;height:30px;background:linear-gradient(to bottom,var(--tr),transparent);animation:slp 1.9s ease-in-out infinite}
+    @keyframes slp{0%,100%{opacity:.25;transform:scaleY(.8)}50%{opacity:1;transform:scaleY(1.1)}}
+    #pdots{position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:.5rem}
+    .pdot{width:4px;height:4px;border-radius:50%;background:var(--gray-300);transition:background .3s,transform .3s}
+    .pdot.active{background:var(--tr);transform:scale(2.2);box-shadow:0 0 6px var(--tr-20)}
+    #mute{position:fixed;bottom:1.6rem;right:1.6rem;z-index:50;width:36px;height:36px;border:1px solid var(--gray-200);border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);color:var(--gray-400);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);transition:border-color .15s,color .15s}
+    #mute:hover{border-color:var(--tr);color:var(--tr)}
+    #mute.muted{opacity:.4}
 
-    .hero-left { opacity: 0; transform: translateY(24px); }
-
-    .badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      padding: .3rem .9rem .3rem .5rem;
-      background: var(--tr-bg);
-      border: 1px solid var(--tr-ll);
-      border-radius: 100px;
-      font-family: var(--mono);
-      font-size: .63rem;
-      color: var(--tr-d);
-      letter-spacing: .08em;
-      margin-bottom: 2rem;
-    }
-    .badge-pill-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--tr);
-      animation: pdot 1.8s ease-in-out infinite;
-    }
-    @keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
-
-    .hero h1 {
-      font-size: clamp(2.5rem, 4.2vw, 4rem);
-      font-weight: 700;
-      line-height: 1.08;
-      letter-spacing: -.03em;
-      color: var(--gray-900);
-      margin-bottom: 1.4rem;
-    }
-    .hero h1 .hl {
-      color: var(--tr);
-    }
-    .hero-p {
-      font-size: .98rem;
-      font-weight: 400;
-      color: var(--text-muted);
-      line-height: 1.75;
-      max-width: 420px;
-      margin-bottom: 2.2rem;
-    }
-    .hero-btns { display: flex; gap: .75rem; flex-wrap: wrap; }
-
-    .trust-badges {
-      display: flex;
-      gap: .5rem;
-      flex-wrap: wrap;
-      margin-top: 2.2rem;
-    }
-    .trust-badge {
-      display: flex;
-      align-items: center;
-      gap: .35rem;
-      font-size: .72rem;
-      font-weight: 500;
-      color: var(--gray-500);
-      background: transparent;
-      border: 1px solid var(--gray-200);
-      border-radius: 100px;
-      padding: .28rem .75rem;
-    }
-    .trust-badge-check {
-      width: 14px; height: 14px;
-      background: var(--tr);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .trust-badge-check::after {
-      content: '';
-      width: 5px; height: 3px;
-      border-left: 1.5px solid #fff;
-      border-bottom: 1.5px solid #fff;
-      transform: rotate(-45deg) translate(0px, -1px);
-    }
-
-    /* Hero right — upload card */
-    .hero-right { opacity: 0; transform: translateY(24px); }
-
-    .hero-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-    }
-    .hero-card-top {
-      padding: 1.6rem 1.8rem 0;
-    }
-    .hero-card-label {
-      font-family: var(--mono);
-      font-size: .62rem;
-      font-weight: 500;
-      letter-spacing: .12em;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-    }
-    .upload-zone {
-      border: 1.5px dashed var(--gray-300);
-      border-radius: var(--radius);
-      padding: 2rem 1.5rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .2s, background .2s;
-      margin-bottom: 1rem;
-    }
-    .upload-zone:hover {
-      border-color: var(--tr);
-      background: var(--tr-bg);
-    }
-    .upload-icon-box {
-      width: 44px; height: 44px;
-      background: var(--tr-bg);
-      border: 1px solid var(--tr-ll);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto .9rem;
-      color: var(--tr);
-    }
-    .upload-zone h4 {
-      font-size: .88rem;
-      font-weight: 600;
-      color: var(--gray-700);
-      margin-bottom: .3rem;
-    }
-    .upload-zone p {
-      font-size: .74rem;
-      color: var(--text-muted);
-      margin-bottom: .9rem;
-    }
-    .upload-chips {
-      display: flex;
-      gap: .4rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .chip {
-      font-family: var(--mono);
-      font-size: .57rem;
-      font-weight: 500;
-      color: var(--tr-d);
-      background: var(--tr-bg);
-      border: 1px solid var(--tr-ll);
-      border-radius: 4px;
-      padding: .18rem .5rem;
-      letter-spacing: .06em;
-    }
-    .upload-actions {
-      display: flex;
-      gap: .6rem;
-      padding: 0 1.8rem 1.4rem;
-    }
-    .upload-actions .btn-primary { flex: 1; justify-content: center; }
-    .upload-actions .btn-secondary { flex: 0 0 auto; }
-
-    /* Stats grid */
-    .hero-stats {
-      display: grid;
-      grid-template-columns: repeat(4,1fr);
-      border-top: 1px solid var(--border-l);
-    }
-    .stat-cell {
-      padding: 1.1rem 1.2rem;
-      text-align: center;
-      border-right: 1px solid var(--border-l);
-    }
-    .stat-cell:last-child { border-right: none; }
-    .stat-val {
-      font-family: var(--mono);
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--gray-900);
-      letter-spacing: -.02em;
-      line-height: 1;
-    }
-    .stat-val b { color: var(--tr); font-weight: 600; }
-    .stat-lbl {
-      font-size: .65rem;
-      color: var(--text-muted);
-      margin-top: .35rem;
-      line-height: 1.4;
-    }
-
-    /* ── TRUSTED STRIP ───────────────────────────────── */
-    .trusted-strip {
-      padding: 1.2rem 5vw;
-      border-top: 1px solid var(--border-l);
-      border-bottom: 1px solid var(--border-l);
-      background: transparent;
-      display: flex;
-      align-items: center;
-      gap: 2.5rem;
-      overflow: hidden;
-    }
-    .trusted-label {
-      font-size: .68rem;
-      font-weight: 500;
-      color: var(--gray-400);
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .trusted-logos {
-      display: flex;
-      gap: 2.8rem;
-      align-items: center;
-    }
-    .trusted-logos span {
-      font-size: .78rem;
-      font-weight: 600;
-      color: var(--gray-300);
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      transition: color .2s;
-    }
-    .trusted-logos span:hover { color: var(--gray-500); }
-
-    /* ── SECTION BASE ────────────────────────────────── */
-    section.s {
-      padding: 96px 5vw;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .eyebrow {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      font-family: var(--mono);
-      font-size: .62rem;
-      font-weight: 500;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      color: var(--tr);
-      margin-bottom: 1rem;
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    .eyebrow-line { width: 24px; height: 1.5px; background: var(--tr); border-radius: 1px; }
-    .s-title {
-      font-size: clamp(1.8rem, 3vw, 2.8rem);
-      font-weight: 700;
-      letter-spacing: -.025em;
-      line-height: 1.1;
-      color: var(--gray-900);
-      margin-bottom: .9rem;
-      opacity: 0;
-      transform: translateY(14px);
-    }
-    .s-sub {
-      font-size: .95rem;
-      color: var(--text-muted);
-      line-height: 1.75;
-      max-width: 480px;
-      margin-bottom: 3.5rem;
-      opacity: 0;
-      transform: translateY(14px);
-    }
-
-    /* ── PROCESS SECTION ─────────────────────────────── */
-    .s-process {
-      flex-direction: row;
-      gap: 6rem;
-      align-items: center;
-      background: transparent;
-    }
-    .s-process-l { flex: 1; min-width: 0; }
-    .s-process-r { flex: 1; min-width: 0; opacity: 0; transform: translateY(20px); }
-
-    .steps { display: flex; flex-direction: column; }
-    .step {
-      display: flex;
-      gap: 1.4rem;
-      padding: 1.4rem 0;
-      border-bottom: 1px solid var(--border-l);
-      opacity: 0;
-      transform: translateX(-16px);
-    }
-    .step:last-child { border-bottom: none; }
-    .step-num {
-      font-family: var(--mono);
-      font-size: .58rem;
-      font-weight: 500;
-      color: var(--tr);
-      letter-spacing: .08em;
-      min-width: 22px;
-      padding-top: .1rem;
-    }
-    .step-body h4 {
-      font-size: .88rem;
-      font-weight: 600;
-      color: var(--gray-900);
-      margin-bottom: .3rem;
-    }
-    .step-body p {
-      font-size: .78rem;
-      color: var(--text-muted);
-      line-height: 1.65;
-    }
-    .step-tags {
-      display: flex;
-      gap: .35rem;
-      flex-wrap: wrap;
-      margin-top: .55rem;
-    }
-    .step-tag {
-      font-family: var(--mono);
-      font-size: .57rem;
-      color: var(--gray-400);
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: .15rem .45rem;
-    }
-
-    /* Quote engine card */
-    .quote-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    .qc-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.2rem 1.5rem;
-      border-bottom: 1px solid var(--border-l);
-      background: transparent;
-    }
-    .qc-title {
-      font-size: .82rem;
-      font-weight: 600;
-      color: var(--gray-700);
-    }
-    .qc-live {
-      display: flex;
-      align-items: center;
-      gap: .35rem;
-      font-family: var(--mono);
-      font-size: .58rem;
-      color: #16a34a;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 100px;
-      padding: .18rem .55rem;
-    }
-    .qc-live-dot { width: 5px; height: 5px; border-radius: 50%; background: #16a34a; animation: pdot 1.4s ease-in-out infinite; }
-    .qc-body { padding: 1rem 1.5rem; }
-    .qc-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: .65rem .8rem;
-      border-radius: var(--radius-sm);
-      margin-bottom: .3rem;
-      transition: background .2s;
-      cursor: default;
-    }
-    .qc-row:hover { background: transparent; }
-    .qc-icon {
-      width: 30px; height: 30px;
-      background: var(--tr-bg);
-      border: 1px solid var(--tr-ll);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--tr);
-      flex-shrink: 0;
-    }
-    .qc-lbl { font-size: .8rem; color: var(--gray-500); flex: 1; }
-    .qc-val { font-family: var(--mono); font-size: .75rem; font-weight: 500; color: var(--gray-700); }
-    .qc-divider { height: 1px; background: var(--border-l); margin: .8rem 0; }
-    .qc-result {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 1.2rem;
-      background: linear-gradient(135deg, var(--tr-bg) 0%, var(--tr-ll) 100%);
-      border: 1px solid var(--tr-ll);
-      border-radius: var(--radius);
-      margin: .5rem 0 1rem;
-    }
-    .qc-result-label { font-size: .78rem; font-weight: 500; color: var(--tr-dd); }
-    .qc-result-price { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; color: var(--tr-d); }
-    .qc-cta { padding: 0 1.5rem 1.2rem; }
-    .qc-cta .btn-primary { width: 100%; justify-content: center; }
-
-    /* ── CAPABILITIES ────────────────────────────────── */
-    .s-caps { background: transparent; }
-    .caps-top {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      margin-bottom: .5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .caps-grid {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 1px;
-      background: var(--border-l);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(20px);
-      box-shadow: var(--shadow-sm);
-    }
-    .cap-card {
-      background: var(--white);
-      padding: 1.8rem;
-      transition: background .2s;
-      position: relative;
-      overflow: hidden;
-    }
-    .cap-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: var(--tr);
-      transform: scaleX(0);
-      transition: transform .3s;
-      transform-origin: left;
-    }
-    .cap-card:hover { background: var(--tr-bg); }
-    .cap-card:hover::before { transform: scaleX(1); }
-    .cap-icon-row {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      margin-bottom: 1.1rem;
-    }
-    .cap-icon {
-      width: 36px; height: 36px;
-      background: var(--tr-bg);
-      border: 1px solid var(--tr-ll);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--tr);
-    }
-    .cap-tag {
-      font-family: var(--mono);
-      font-size: .58rem;
-      font-weight: 500;
-      color: var(--tr-d);
-      background: var(--tr-bg);
-      border: 1px solid var(--tr-ll);
-      border-radius: 4px;
-      padding: .15rem .45rem;
-      letter-spacing: .06em;
-    }
-    .cap-card h4 { font-size: .88rem; font-weight: 600; color: var(--gray-900); margin-bottom: .4rem; }
-    .cap-card p  { font-size: .78rem; color: var(--text-muted); line-height: 1.65; }
-    .cap-metric  {
-      display: flex;
-      align-items: center;
-      gap: .4rem;
-      font-family: var(--mono);
-      font-size: .66rem;
-      color: var(--tr-d);
-      margin-top: 1.1rem;
-      padding-top: .9rem;
-      border-top: 1px solid var(--border-l);
-    }
-    .cap-metric::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--tr); flex-shrink:0; }
-
-    /* ── CTA SECTION ─────────────────────────────────── */
-    .s-cta {
-      background: transparent;
-      align-items: center;
-      text-align: center;
-      border-top: none;
-    }
-    .s-cta .s-title { margin: 0 auto .9rem; }
-    .s-cta .s-sub   { margin: 0 auto 2.5rem; }
-
-    .cta-card {
-      width: 100%;
-      max-width: 500px;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
-      padding: 2rem;
-      margin: 0 auto 1.8rem;
-      opacity: 0;
-      transform: translateY(18px);
-      cursor: pointer;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .cta-card:hover {
-      border-color: var(--tr);
-      box-shadow: 0 8px 40px var(--tr-15);
-    }
-    .cta-card .upload-icon-box { margin: 0 auto .8rem; }
-    .cta-card h4 { font-size: .9rem; font-weight: 600; color: var(--gray-700); margin-bottom: .3rem; }
-    .cta-card p  { font-size: .74rem; color: var(--text-muted); margin-bottom: 1rem; }
-
-    .cta-btns { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
-
-    .cert-row {
-      display: flex;
-      gap: .6rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 2.5rem;
-      opacity: 0;
-    }
-    .cert-badge {
-      font-family: var(--mono);
-      font-size: .6rem;
-      font-weight: 500;
-      color: var(--gray-400);
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: .28rem .8rem;
-      letter-spacing: .06em;
-    }
-
-    /* ── FOOTER ──────────────────────────────────────── */
-    footer {
-      position: relative;
-      z-index: 10;
-      pointer-events: all;
-      background: var(--gray-900);
-      padding: 4rem 5vw 2rem;
-    }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-      gap: 3rem;
-      padding-bottom: 3rem;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .footer-logo-wrap {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      margin-bottom: 1rem;
-    }
-    .footer-logo-mark {
-      width: 28px; height: 28px;
-      background: var(--tr);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--mono);
-      font-size: .76rem;
-      font-weight: 500;
-      color: #fff;
-    }
-    .footer-logo-text {
-      font-family: var(--mono);
-      font-size: .85rem;
-      font-weight: 500;
-      letter-spacing: .1em;
-      color: var(--white);
-    }
-    .footer-desc { font-size: .78rem; color: rgba(255,255,255,.35); line-height: 1.7; max-width: 210px; margin-bottom: 1.2rem; }
-    .footer-cert-row { display: flex; gap: .4rem; flex-wrap: wrap; }
-    .footer-cert {
-      font-family: var(--mono);
-      font-size: .55rem;
-      color: rgba(255,255,255,.25);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 4px;
-      padding: .18rem .45rem;
-      letter-spacing: .06em;
-    }
-    .footer-col h5 {
-      font-family: var(--mono);
-      font-size: .6rem;
-      font-weight: 500;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.3);
-      margin-bottom: 1.2rem;
-    }
-    .footer-col ul { list-style: none; }
-    .footer-col li { margin-bottom: .6rem; }
-    .footer-col a {
-      font-size: .78rem;
-      color: rgba(255,255,255,.4);
-      text-decoration: none;
-      transition: color .2s;
-    }
-    .footer-col a:hover { color: rgba(255,255,255,.8); }
-    .footer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 1.8rem;
-      flex-wrap: wrap;
-      gap: .75rem;
-    }
-    .footer-bottom p { font-size: .72rem; color: rgba(255,255,255,.2); }
-    .footer-legal { display: flex; gap: 1.5rem; }
-    .footer-legal a { font-size: .72rem; color: rgba(255,255,255,.2); text-decoration: none; transition: color .2s; }
-    .footer-legal a:hover { color: rgba(255,255,255,.5); }
-
-    /* ── OVERLAYS ─────────────────────────────────────── */
-    #scroll-hint {
-      position: fixed;
-      bottom: 2.5rem; left: 50%;
-      transform: translateX(-50%);
-      z-index: 20;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: .45rem;
-      pointer-events: none;
-    }
-    #scroll-hint span {
-      font-family: var(--mono);
-      font-size: .56rem;
-      color: rgba(95,171,219,.5);
-      letter-spacing: .3em;
-    }
-    .scroll-ln {
-      width: 1px; height: 32px;
-      background: linear-gradient(to bottom, var(--tr), transparent);
-      animation: slp 1.9s ease-in-out infinite;
-    }
-    @keyframes slp{0%,100%{opacity:.3;transform:scaleY(.8)}50%{opacity:1;transform:scaleY(1.1)}}
-
-    #phase-dots {
-      position: fixed;
-      right: 1.6rem; top: 50%;
-      transform: translateY(-50%);
-      z-index: 20;
-      display: flex;
-      flex-direction: column;
-      gap: .55rem;
-    }
-    .pdot { width: 4px; height: 4px; border-radius: 50%; background: var(--gray-300); transition: background .4s, transform .4s; }
-    .pdot.active { background: var(--tr); transform: scale(2.2); box-shadow: 0 0 6px var(--tr-25); }
-
-    #mute-btn {
-      position: fixed;
-      bottom: 1.8rem; right: 1.8rem;
-      z-index: 50;
-      width: 38px; height: 38px;
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      background: rgba(255,255,255,.88);
-      backdrop-filter: blur(12px);
-      color: var(--gray-400);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--shadow-sm);
-      transition: border-color .2s, color .2s;
-    }
-    #mute-btn:hover { border-color: var(--tr); color: var(--tr); }
-    #mute-btn.muted { opacity: .4; }
-
-    /* ── RESPONSIVE ───────────────────────────────────── */
-    @media(max-width:960px){
-      .hero { grid-template-columns:1fr; }
-      .hero-right { display:none; }
-      .s-process { flex-direction:column; gap:3rem; }
-      .caps-grid { grid-template-columns:1fr 1fr; }
-      .footer-grid { grid-template-columns:1fr 1fr; }
-      .nav-links { display:none; }
-      .hero-stats { grid-template-columns:repeat(2,1fr); }
-    }
-    @media(prefers-reduced-motion:reduce){
-      .scroll-ln,.badge-pill-dot,.qc-live-dot{animation:none}
-    }
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr}.hr{display:none}
+      .s-process{flex-direction:column;gap:2.5rem}
+      .cgrid{grid-template-columns:1fr 1fr}
+      .footer-grid{grid-template-columns:1fr 1fr}
+      .nc{display:none}
+      .hstats{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(prefers-reduced-motion:reduce){.sln,.pill-dot,.live-dot,.blink{animation:none}}
   </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div id="loading-screen">
-  <div class="load-brand">
-    <div class="load-mark">T</div>
-    <span class="load-name">TRING</span>
-  </div>
-  <div class="load-bar-wrap"><div id="loading-bar"></div></div>
-  <span id="loading-pct">0%</span>
+<div id="ls">
+  <div class="ll"><div class="lm">T</div><span class="ln">TRING</span></div>
+  <div class="lb"><div id="lbf"></div></div>
+  <span id="lp">0%</span>
 </div>
 
-<!-- CANVAS -->
-<div id="canvas-container" role="img" aria-label="3D PCB animation"></div>
+<div id="cv" role="img" aria-label="3D PCB animation"></div>
 
-<!-- NAV -->
-<nav id="main-nav">
-  <a href="#" class="nav-logo">
-    <div class="nav-logo-mark">T</div>
-    <span class="nav-logo-text">TRING</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#process">Process</a></li>
-    <li><a href="#capabilities">Capabilities</a></li>
-    <li><a href="#assembly">Assembly</a></li>
-    <li><a href="#about">About</a></li>
+<nav>
+  <a href="#" class="nl"><div class="nm">T</div><span class="nt">TRING</span></a>
+  <ul class="nc">
+    <li><a href="#s-trans">Process</a></li>
+    <li><a href="#s-detail">Capabilities</a></li>
+    <li><a href="#s-cta">Pricing</a></li>
+    <li><a href="#s-cta">About</a></li>
   </ul>
-  <div class="nav-actions">
-    <button class="btn-ghost-nav">Log in</button>
-    <a href="#cta" class="btn-cta-nav">Get Instant Quote</a>
+  <div class="na">
+    <button class="btn-ghost">Log in</button>
+    <a href="#s-cta" class="btn-blue">Get Instant Quote</a>
   </div>
 </nav>
 
-<!-- PAGE -->
 <div id="page">
 <div id="scroll-sections">
 
 <!-- HERO -->
 <section class="hero" id="s-hero">
-  <div class="hero-left">
-    <div class="badge-pill">
-      <span class="badge-pill-dot"></span>
-      Instant Quotes in Under 2 Seconds
-    </div>
-    <h1>From Design<br>to <span class="hl">Production</span><br>— Instantly.</h1>
-    <p class="hero-p">Upload your PCB files and get real-time pricing, DFM validation, and global manufacturing — all in one platform.</p>
-    <div class="hero-btns">
-      <a href="#cta" class="btn-primary">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  <div class="hl">
+    <div class="pill"><span class="pill-dot"></span>Instant Quotes in Under 2 Seconds</div>
+    <h1>From Design<br>to <span>Production</span><br>— Instantly.</h1>
+    <p>Upload your PCB files and get real-time pricing, DFM validation, and global manufacturing — all in one platform.</p>
+    <div class="hbtns">
+      <a href="#s-cta" class="btn-primary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         Upload Your Gerber
       </a>
-      <a href="#capabilities" class="btn-secondary">View Capabilities</a>
+      <a href="#s-detail" class="btn-outline">View Capabilities</a>
     </div>
-    <div class="trust-badges">
-      <span class="trust-badge"><span class="trust-badge-check"></span>ISO 9001 Certified</span>
-      <span class="trust-badge"><span class="trust-badge-check"></span>Global Shipping</span>
-      <span class="trust-badge"><span class="trust-badge-check"></span>24h Fast-Track</span>
+    <div class="htrust">
+      <span class="tbadge"><span class="tbadge-ck"></span>ISO 9001 Certified</span>
+      <span class="tbadge"><span class="tbadge-ck"></span>Global Shipping</span>
+      <span class="tbadge"><span class="tbadge-ck"></span>24h Fast-Track</span>
     </div>
   </div>
-
-  <div class="hero-right">
-    <div class="hero-card">
-      <div class="hero-card-top">
-        <div class="hero-card-label">Gerber Upload</div>
-        <div class="upload-zone" id="uz">
-          <div class="upload-icon-box">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-          </div>
-          <h4>Drop your Gerber files here</h4>
-          <p>Supports .zip, .rar, .gbr formats</p>
-          <div class="upload-chips">
-            <span class="chip">AUTO-DETECT</span>
-            <span class="chip">DFM CHECK</span>
-            <span class="chip">3D PREVIEW</span>
-            <span class="chip">SECURE</span>
-          </div>
-        </div>
+  <div class="hr">
+    <div class="hcard">
+      <div class="hcard-lbl">Gerber Upload</div>
+      <div class="uzone" id="uz">
+        <div class="uicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+        <h4>Drop your Gerber files here</h4>
+        <p>Supports .zip, .rar, .gbr formats</p>
+        <div class="uchips"><span class="uchip">AUTO-DETECT</span><span class="uchip">DFM CHECK</span><span class="uchip">3D PREVIEW</span><span class="uchip">SECURE</span></div>
       </div>
-      <div class="upload-actions">
+      <div class="ubtns">
         <a href="#" class="btn-primary">Upload Your Gerber</a>
-        <a href="#" class="btn-secondary">Browse</a>
+        <a href="#" class="btn-outline">Browse</a>
       </div>
-      <div class="hero-stats">
-        <div class="stat-cell"><div class="stat-val">2M<b>+</b></div><div class="stat-lbl">PCBs Manufactured</div></div>
-        <div class="stat-cell"><div class="stat-val">&lt;<b>2s</b></div><div class="stat-lbl">Quote Generation</div></div>
-        <div class="stat-cell"><div class="stat-val">660<b>K</b></div><div class="stat-lbl">Components</div></div>
-        <div class="stat-cell"><div class="stat-val">99.8<b>%</b></div><div class="stat-lbl">On-Time Delivery</div></div>
+      <div class="hstats">
+        <div class="hstat"><div class="hstat-val">2M<b>+</b></div><div class="hstat-lbl">PCBs Manufactured</div></div>
+        <div class="hstat"><div class="hstat-val">&lt;<b>2s</b></div><div class="hstat-lbl">Quote Generation</div></div>
+        <div class="hstat"><div class="hstat-val">660<b>K</b></div><div class="hstat-lbl">Components</div></div>
+        <div class="hstat"><div class="hstat-val">99.8<b>%</b></div><div class="hstat-lbl">On-Time Delivery</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- TRUSTED STRIP -->
-<div class="trusted-strip">
-  <span class="trusted-label">Trusted by engineers at</span>
-  <div class="trusted-logos">
-    <span>Siemens</span><span>Bosch</span><span>Raspberry Pi</span><span>Arduino</span><span>SparkFun</span>
-  </div>
+<!-- TRUSTED -->
+<div class="trusted">
+  <span class="trusted-lbl">Trusted by engineers at</span>
+  <div class="tlogos"><span>Siemens</span><span>Bosch</span><span>Raspberry Pi</span><span>Arduino</span><span>SparkFun</span></div>
 </div>
 
 <!-- PROCESS -->
 <section class="s s-process" id="s-trans">
-  <div class="s-process-l">
-    <div class="eyebrow"><span class="eyebrow-line"></span>How It Works</div>
+  <div class="sp-l">
+    <div class="eyebrow"><span class="eyebrow-bar"></span>How It Works</div>
     <h2 class="s-title">From upload to<br>delivery in 4 steps</h2>
-    <p class="s-sub">Our streamlined process gets your PCBs manufactured and delivered with maximum efficiency and precision.</p>
+    <p class="s-sub">Our streamlined process gets your PCBs manufactured and delivered with maximum efficiency.</p>
     <div class="steps">
-      <div class="step"><span class="step-num">01</span><div class="step-body">
-        <h4>Upload Your Design</h4>
-        <p>Drag and drop your Gerber ZIP. Auto-detect layers, board dimensions, and via counts instantly.</p>
-        <div class="step-tags"><span class="step-tag">Gerber RS-274X</span><span class="step-tag">ODB++</span><span class="step-tag">IPC-2581</span></div>
-      </div></div>
-      <div class="step"><span class="step-num">02</span><div class="step-body">
-        <h4>Configure Options</h4>
-        <p>Select material, thickness, copper weight, surface finish, and quantity. Watch price update in real-time.</p>
-        <div class="step-tags"><span class="step-tag">FR-4</span><span class="step-tag">Rogers</span><span class="step-tag">Flex</span><span class="step-tag">1–32 layers</span></div>
-      </div></div>
-      <div class="step"><span class="step-num">03</span><div class="step-body">
-        <h4>Review &amp; Order</h4>
-        <p>DFM validation runs automatically. Review warnings, approve the design, and complete checkout securely.</p>
-        <div class="step-tags"><span class="step-tag">Auto DFM</span><span class="step-tag">Secure payment</span></div>
-      </div></div>
-      <div class="step"><span class="step-num">04</span><div class="step-body">
-        <h4>Track Production</h4>
-        <p>Monitor your order through CAM, fabrication, QA, and shipping with real-time updates.</p>
-        <div class="step-tags"><span class="step-tag">Real-time tracking</span><span class="step-tag">DHL/FedEx</span></div>
-      </div></div>
+      <div class="step"><span class="snum">01</span><div class="sbody"><h4>Upload Your Design</h4><p>Drag and drop your Gerber ZIP. Auto-detect layers, dimensions, via counts.</p><div class="stags"><span class="stag">Gerber RS-274X</span><span class="stag">ODB++</span><span class="stag">IPC-2581</span></div></div></div>
+      <div class="step"><span class="snum">02</span><div class="sbody"><h4>Configure Options</h4><p>Select material, thickness, copper weight, surface finish, and quantity.</p><div class="stags"><span class="stag">FR-4</span><span class="stag">Rogers</span><span class="stag">Flex</span><span class="stag">1–32 layers</span></div></div></div>
+      <div class="step"><span class="snum">03</span><div class="sbody"><h4>Review &amp; Order</h4><p>DFM validation runs automatically. Review warnings and complete checkout securely.</p><div class="stags"><span class="stag">Auto DFM</span><span class="stag">Secure payment</span></div></div></div>
+      <div class="step"><span class="snum">04</span><div class="sbody"><h4>Track Production</h4><p>Real-time updates through CAM, fabrication, QA, and shipping.</p><div class="stags"><span class="stag">Live tracking</span><span class="stag">DHL/FedEx</span></div></div></div>
     </div>
   </div>
-  <div class="s-process-r" id="process-visual">
-    <div class="quote-card">
-      <div class="qc-header">
-        <span class="qc-title">Instant Quote Engine</span>
-        <span class="qc-live"><span class="qc-live-dot"></span>LIVE</span>
+  <div class="sp-r" id="process-visual">
+    <div class="qcard">
+      <div class="qcard-head"><span class="qcard-title">Instant Quote Engine</span><span class="live"><span class="live-dot"></span>LIVE</span></div>
+      <div class="qbody">
+        <div class="qrow"><div class="qicon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><span class="qlbl">Board Size</span><span class="qval">100 × 80 mm</span></div>
+        <div class="qrow"><div class="qicon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><span class="qlbl">Layers</span><span class="qval">4 layers</span></div>
+        <div class="qrow"><div class="qicon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><span class="qlbl">Turnaround</span><span class="qval">5 business days</span></div>
+        <div class="qrow"><div class="qicon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="qlbl">Surface Finish</span><span class="qval">ENIG</span></div>
+        <div class="qdiv"></div>
+        <div class="qresult"><span class="qrlbl">Estimated Price (10 pcs)</span><span class="qrprice">$48.20</span></div>
       </div>
-      <div class="qc-body">
-        <div class="qc-row">
-          <div class="qc-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
-          <span class="qc-lbl">Board Size</span><span class="qc-val">100 × 80 mm</span>
-        </div>
-        <div class="qc-row">
-          <div class="qc-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-          <span class="qc-lbl">Layers</span><span class="qc-val">4 layers</span>
-        </div>
-        <div class="qc-row">
-          <div class="qc-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
-          <span class="qc-lbl">Turnaround</span><span class="qc-val">5 business days</span>
-        </div>
-        <div class="qc-row">
-          <div class="qc-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <span class="qc-lbl">Surface Finish</span><span class="qc-val">ENIG</span>
-        </div>
-        <div class="qc-divider"></div>
-        <div class="qc-result">
-          <span class="qc-result-label">Estimated Price (10 pcs)</span>
-          <span class="qc-result-price">$48.20</span>
-        </div>
-      </div>
-      <div class="qc-cta"><a href="#" class="btn-primary">Get Your Quote Now</a></div>
+      <div class="qfoot"><a href="#" class="btn-primary">Get Your Quote Now</a></div>
     </div>
   </div>
 </section>
@@ -1140,195 +328,80 @@
 <section class="s s-caps" id="s-detail">
   <div class="caps-top">
     <div>
-      <div class="eyebrow"><span class="eyebrow-line"></span>Platform Features</div>
+      <div class="eyebrow"><span class="eyebrow-bar"></span>Platform Features</div>
       <h2 class="s-title" style="margin-bottom:0">Everything you need for<br>PCB manufacturing</h2>
     </div>
-    <a href="#" class="btn-secondary" style="align-self:flex-end;white-space:nowrap">Explore All Capabilities</a>
+    <a href="#" class="btn-outline" style="align-self:flex-end;white-space:nowrap">Explore All</a>
   </div>
-  <p class="s-sub">From rapid prototyping to volume production, our platform handles the entire workflow with precision and speed.</p>
-  <div class="caps-grid">
-    <div class="cap-card">
-      <div class="cap-icon-row">
-        <div class="cap-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
-        <span class="cap-tag">QUOTE ENGINE</span>
-      </div>
-      <h4>Instant Quote Engine</h4>
-      <p>Real-time pricing with automated layer detection, board size calculation, and complexity scoring.</p>
-      <div class="cap-metric">&lt; 2 second response</div>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon-row">
-        <div class="cap-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <span class="cap-tag">DFM</span>
-      </div>
-      <h4>Advanced DFM Validation</h4>
-      <p>Automated Design for Manufacturing checks identify potential issues before production starts.</p>
-      <div class="cap-metric">99.2% first-pass yield</div>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon-row">
-        <div class="cap-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-        <span class="cap-tag">SPEED</span>
-      </div>
-      <h4>Fast-Track Production</h4>
-      <p>24-hour fast-track option prioritizes your order through dedicated production lines.</p>
-      <div class="cap-metric">24h turnaround available</div>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon-row">
-        <div class="cap-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
-        <span class="cap-tag">QUALITY</span>
-      </div>
-      <h4>Quality Assurance</h4>
-      <p>AOI inspection, electrical testing, and visual QC on every board before shipping.</p>
-      <div class="cap-metric">ISO 9001 certified</div>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon-row">
-        <div class="cap-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-        <span class="cap-tag">ASSEMBLY</span>
-      </div>
-      <h4>PCBA Assembly</h4>
-      <p>Full turnkey assembly with 660K+ components. Upload your BOM for instant availability and pricing.</p>
-      <div class="cap-metric">660K+ components</div>
-    </div>
-    <div class="cap-card">
-      <div class="cap-icon-row">
-        <div class="cap-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></div>
-        <span class="cap-tag">ENGINEERING</span>
-      </div>
-      <h4>Engineering Services</h4>
-      <p>Expert PCB layout review, DFM optimization, and design consultation from experienced engineers.</p>
-      <div class="cap-metric">Expert support</div>
-    </div>
+  <p class="s-sub">From rapid prototyping to volume production, our platform handles the entire workflow.</p>
+  <div class="cgrid">
+    <div class="ccard"><div class="cicon-row"><div class="cicon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><span class="ctag">QUOTE</span></div><h4>Instant Quote Engine</h4><p>Real-time pricing with automated layer detection, board size calculation, and complexity scoring.</p><div class="cmetric">&lt; 2 second response</div></div>
+    <div class="ccard"><div class="cicon-row"><div class="cicon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="ctag">DFM</span></div><h4>Advanced DFM Validation</h4><p>Automated Design for Manufacturing checks identify potential issues before production starts.</p><div class="cmetric">99.2% first-pass yield</div></div>
+    <div class="ccard"><div class="cicon-row"><div class="cicon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><span class="ctag">SPEED</span></div><h4>Fast-Track Production</h4><p>24-hour fast-track option prioritizes your order through dedicated production lines.</p><div class="cmetric">24h turnaround available</div></div>
+    <div class="ccard"><div class="cicon-row"><div class="cicon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><span class="ctag">QUALITY</span></div><h4>Quality Assurance</h4><p>AOI inspection, electrical testing, and visual QC on every board before shipping.</p><div class="cmetric">ISO 9001 certified</div></div>
+    <div class="ccard"><div class="cicon-row"><div class="cicon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><span class="ctag">ASSEMBLY</span></div><h4>PCBA Assembly</h4><p>Full turnkey assembly with 660K+ components. Upload your BOM for instant pricing.</p><div class="cmetric">660K+ components</div></div>
+    <div class="ccard"><div class="cicon-row"><div class="cicon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></div><span class="ctag">ENGINEERING</span></div><h4>Engineering Services</h4><p>Expert PCB layout review, DFM optimization, and consultation from senior engineers.</p><div class="cmetric">Expert support</div></div>
   </div>
 </section>
 
 <!-- CTA -->
 <section class="s s-cta" id="s-cta">
-  <div class="eyebrow" style="justify-content:center"><span class="eyebrow-line"></span>Get Started</div>
+  <div class="eyebrow" style="justify-content:center"><span class="eyebrow-bar"></span>Get Started</div>
   <h2 class="s-title">Ready to start your<br>next project?</h2>
-  <p class="s-sub">Join thousands of engineers who trust TRING for their PCB manufacturing. Get your instant quote in under 2 seconds.</p>
-  <div class="cta-card" id="cta-upload">
-    <div class="upload-icon-box" style="margin:0 auto .8rem">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    </div>
+  <p class="s-sub">Join thousands of engineers who trust TRING. Get your instant quote in under 2 seconds.</p>
+  <div class="ctacard" id="ctacard">
+    <div class="uicon" style="margin:0 auto .7rem"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
     <h4>Drop your Gerber files here</h4>
     <p>Supports .zip, .rar, .gbr formats</p>
-    <div class="upload-chips" style="justify-content:center">
-      <span class="chip">AUTO-DETECT</span><span class="chip">DFM CHECK</span>
-      <span class="chip">3D PREVIEW</span><span class="chip">SECURE UPLOAD</span>
-    </div>
+    <div class="uchips" style="justify-content:center"><span class="uchip">AUTO-DETECT</span><span class="uchip">DFM CHECK</span><span class="uchip">3D PREVIEW</span><span class="uchip">SECURE</span></div>
   </div>
-  <div class="cta-btns">
+  <div class="ctabtns">
     <a href="#" class="btn-primary">Upload Your Gerber</a>
-    <a href="#" class="btn-secondary">Contact Sales</a>
+    <a href="#" class="btn-outline">Contact Sales</a>
   </div>
-  <div class="cert-row" id="cert-row">
-    <span class="cert-badge">No minimum order</span>
-    <span class="cert-badge">Free DFM check</span>
-    <span class="cert-badge">Global shipping</span>
-    <span class="cert-badge">24/7 support</span>
-    <span class="cert-badge">ISO 9001:2015</span>
-    <span class="cert-badge">IATF 16949</span>
-    <span class="cert-badge">UL Listed</span>
+  <div class="certs" id="certs">
+    <span class="cert">No minimum order</span><span class="cert">Free DFM check</span>
+    <span class="cert">Global shipping</span><span class="cert">24/7 support</span>
+    <span class="cert">ISO 9001:2015</span><span class="cert">IATF 16949</span><span class="cert">UL Listed</span>
   </div>
 </section>
 
-</div><!-- /scroll-sections -->
+</div>
+</div>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-grid">
-    <div>
-      <div class="footer-logo-wrap">
-        <div class="footer-logo-mark">T</div>
-        <span class="footer-logo-text">TRING</span>
-      </div>
-      <p class="footer-desc">From design to production — instantly. Complete engineering solutions for PCB manufacturing and assembly.</p>
-      <div class="footer-cert-row">
-        <span class="footer-cert">ISO 9001:2015</span>
-        <span class="footer-cert">ISO 14001</span>
-        <span class="footer-cert">IATF 16949</span>
-        <span class="footer-cert">UL Listed</span>
-      </div>
+    <div class="footer-brand">
+      <div class="nl" style="pointer-events:all"><div class="nm">T</div><span class="nt" style="color:#fff">TRING</span></div>
+      <p>From design to production — instantly. Complete engineering solutions for PCB manufacturing and assembly.</p>
+      <div class="fcerts"><span class="fcert">ISO 9001:2015</span><span class="fcert">ISO 14001</span><span class="fcert">IATF 16949</span><span class="fcert">UL Listed</span></div>
     </div>
-    <div class="footer-col">
-      <h5>Products</h5>
-      <ul>
-        <li><a href="#">PCB Manufacturing</a></li>
-        <li><a href="#">PCBA Assembly</a></li>
-        <li><a href="#">Stencil</a></li>
-        <li><a href="#">3D Printing</a></li>
-        <li><a href="#">CNC Machining</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h5>Resources</h5>
-      <ul>
-        <li><a href="#">Capabilities</a></li>
-        <li><a href="#">Design Guidelines</a></li>
-        <li><a href="#">Material Database</a></li>
-        <li><a href="#">API Documentation</a></li>
-        <li><a href="#">Blog</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h5>Company</h5>
-      <ul>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Trust Center</a></li>
-        <li><a href="#">Careers</a></li>
-        <li><a href="#">Contact</a></li>
-        <li><a href="#">Partners</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h5>Support</h5>
-      <ul>
-        <li><a href="#">Help Center</a></li>
-        <li><a href="#">Shipping Info</a></li>
-        <li><a href="#">Returns</a></li>
-        <li><a href="#">Order Status</a></li>
-        <li><a href="#">FAQs</a></li>
-      </ul>
-    </div>
+    <div class="footer-col"><h5>Products</h5><ul><li><a href="#">PCB Manufacturing</a></li><li><a href="#">PCBA Assembly</a></li><li><a href="#">Stencil</a></li><li><a href="#">3D Printing</a></li><li><a href="#">CNC Machining</a></li></ul></div>
+    <div class="footer-col"><h5>Resources</h5><ul><li><a href="#">Capabilities</a></li><li><a href="#">Design Guidelines</a></li><li><a href="#">Material Database</a></li><li><a href="#">API Docs</a></li><li><a href="#">Blog</a></li></ul></div>
+    <div class="footer-col"><h5>Company</h5><ul><li><a href="#">About Us</a></li><li><a href="#">Trust Center</a></li><li><a href="#">Careers</a></li><li><a href="#">Contact</a></li><li><a href="#">Partners</a></li></ul></div>
+    <div class="footer-col"><h5>Support</h5><ul><li><a href="#">Help Center</a></li><li><a href="#">Shipping Info</a></li><li><a href="#">Returns</a></li><li><a href="#">Order Status</a></li><li><a href="#">FAQs</a></li></ul></div>
   </div>
   <div class="footer-bottom">
     <p>© 2026 TRING Complete Engineering. All rights reserved.</p>
-    <div class="footer-legal">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-      <a href="#">Cookie Policy</a>
-    </div>
+    <div class="flegal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
   </div>
 </footer>
-</div><!-- /page -->
 
-<!-- OVERLAYS -->
-<div id="scroll-hint"><span>SCROLL</span><div class="scroll-ln"></div></div>
-<div id="phase-dots">
-  <div class="pdot active"></div>
-  <div class="pdot"></div>
-  <div class="pdot"></div>
-  <div class="pdot"></div>
-</div>
-<button id="mute-btn" aria-label="Toggle sound">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-    <path d="M11 5L6 9H2v6h4l5 4V5z"/>
-    <path class="sound-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
+<div id="scroll-hint"><span>SCROLL</span><div class="sln"></div></div>
+<div id="pdots"><div class="pdot active"></div><div class="pdot"></div><div class="pdot"></div><div class="pdot"></div></div>
+<button id="mute" aria-label="Toggle sound">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M11 5L6 9H2v6h4l5 4V5z"/><path class="sw" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
   </svg>
 </button>
 
 <script>
-window.addEventListener('scroll',()=>{
-  document.getElementById('main-nav').classList.toggle('scrolled',window.scrollY>30);
-},{passive:true});
+window.addEventListener('scroll',()=>document.querySelector('nav').classList.toggle('scrolled',scrollY>20),{passive:true});
 const uz=document.getElementById('uz');
 if(uz){
-  uz.addEventListener('dragover',e=>{e.preventDefault();uz.style.borderColor='var(--tr)';uz.style.background='var(--tr-bg)';});
-  uz.addEventListener('dragleave',()=>{uz.style.borderColor='';uz.style.background='';});
-  uz.addEventListener('drop',e=>{e.preventDefault();uz.querySelector('h4').textContent='✓ File received — processing...';uz.style.borderColor='';uz.style.background='';});
+  uz.addEventListener('dragover',e=>{e.preventDefault();uz.style.borderColor='var(--tr)';uz.style.background='var(--tr-10)'});
+  uz.addEventListener('dragleave',()=>{uz.style.borderColor='';uz.style.background=''});
+  uz.addEventListener('drop',e=>{e.preventDefault();uz.querySelector('h4').textContent='✓ File received';uz.style.borderColor='';uz.style.background=''});
 }
 </script>
 <script type="module" src="/src/main.js"></script>

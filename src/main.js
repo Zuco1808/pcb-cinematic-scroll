@@ -23,7 +23,7 @@ document.body.style.height = '500vh';
 async function init() {
   applyMobileScrollFix();
 
-  const container = document.getElementById('canvas-container');
+  const container = document.getElementById('cv');
   const sm = new SceneManager(container);
 
   // Post-processing
@@ -84,15 +84,15 @@ function _animateHero() {
 
 function _fadeLoading() {
   let pct = 0;
-  const bar = document.getElementById('loading-bar');
-  const pctEl = document.getElementById('loading-pct');
+  const bar = document.getElementById('lbf');
+  const pctEl = document.getElementById('lp');
   const iv = setInterval(() => {
     pct += Math.random() * 22 + 8;
     if (pct >= 100) {
       pct = 100;
       clearInterval(iv);
       setTimeout(() => {
-        const s = document.getElementById('loading-screen');
+        const s = document.getElementById('ls');
         if (!s) return;
         gsap.to(s, { opacity:0, duration:0.6, onComplete:() => s.remove() });
       }, 250);
@@ -103,7 +103,7 @@ function _fadeLoading() {
 }
 
 function _setupMuteBtn(audio) {
-  const btn = document.getElementById('mute-btn');
+  const btn = document.getElementById('mute');
   const waves = btn?.querySelector('.sound-waves');
   if (!btn) return;
   btn.addEventListener('click', () => {
@@ -123,6 +123,6 @@ function _setupUploadDrag() {
 
 init().catch(err => {
   console.error(err);
-  const s = document.getElementById('loading-screen');
+  const s = document.getElementById('ls');
   if (s) s.remove();
 });

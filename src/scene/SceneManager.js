@@ -38,7 +38,7 @@ export class SceneManager {
       antialias: true,
       powerPreference: 'high-performance',
       stencil: false,
-      alpha: true,   // KRITIČNO: proziran canvas
+      alpha: true,
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -60,8 +60,8 @@ export class SceneManager {
     this.camera = new THREE.PerspectiveCamera(
       45, window.innerWidth / window.innerHeight, 0.1, 100
     );
-    this.camera.position.set(0, 6, 9);
-    this.camera.rotation.x = -0.40;
+    this.camera.position.set(0, 5, 8);
+    this.camera.rotation.x = -0.38;
   }
 
   setComposer(composer, bokeh = null) {

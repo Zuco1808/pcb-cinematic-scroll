@@ -1,293 +1,250 @@
-// scene/ProceduralPCB.js — STM103 inspirisana geometrija
+// ProceduralPCB.js — Vjerna rekonstrukcija slike (zelena PCB, zlatni pinovi, crni čipovi)
 import * as THREE from 'three';
 import gsap from 'gsap';
 
 export class ProceduralPCB {
   constructor(scene) {
-    this.scene      = scene;
-    this.group      = new THREE.Group();
+    this.scene = scene;
+    this.group = new THREE.Group();
     this.components = [];
   }
 
   build() {
-    this._buildSubstrate();
-    this._buildGoldTraces();
-    this._buildSTM32Chip();
-    this._buildMemoryChips();
-    this._buildPowerSection();
-    this._buildConnectors();
-    this._buildCrystal();
-    this._buildPassives();
-    this._buildVias();
-    this._buildSilkscreen();
+    // Više layera kao na slici — 7 pločica u stogu
+    this._buildStack();
     this.scene.add(this.group);
+    // Rotacija za izometrijski view kao na slici
+    this.group.rotation.x = 0.3;
+    this.group.rotation.y = -0.5;
     return this.group;
   }
 
-  // ── SUBSTRATE — tamno plava (STM103 karakteristična boja) ──
-  _buildSubstrate() {
-    // Osnovna pločica
-    const geo = new THREE.BoxGeometry(7.2, 0.12, 4.8);
+  _buildStack() {
+    const layerCount = 7;
+    const layerGap   = 0.28;
+
+    for (let i = 0; i < layerCount; i++) {
+      const y = i * layerGap - (layerCount * layerGap) / 2;
+      const isTop = (i === layerCount - 1);
+      this._buildLayer(y, isTop, i);
+    }
+
+    // Zlatni standoff stupovi (ugaoni)
+    this._buildStandoffs(layerCount, layerGap);
+  }
+
+  _buildLayer(y, isTop, index) {
+    // FR4 supstrat — zeleni
+    const geo = new THREE.BoxGeometry(5.0, 0.10, 4.0);
     const mat = new THREE.MeshStandardMaterial({
-      color: 0x0f2d4a,      // Tamna navy — jak kontrast na bijeloj
+      color: isTop ? 0x2d8a2d : 0x1e6b1e,
       roughness: 0.35,
-      metalness: 0.08,
-      envMapIntensity: 0.6,
-    });
-    const board = new THREE.Mesh(geo, mat);
-    board.castShadow = true;
-    board.receiveShadow = true;
-    board.name = 'PCB_Substrate';
-    this.group.add(board);
-
-    // Bottom layer — tamni bakar
-    const botGeo = new THREE.BoxGeometry(7.2, 0.008, 4.8);
-    const botMat = new THREE.MeshStandardMaterial({
-      color: 0x8B6914,
-      roughness: 0.25,
-      metalness: 0.9,
-    });
-    const bot = new THREE.Mesh(botGeo, botMat);
-    bot.position.y = -0.064;
-    this.group.add(bot);
-
-    // Ivica pločice — lagano svjetlija
-    const edgeGeo = new THREE.EdgesGeometry(geo);
-    const edgeMat = new THREE.LineBasicMaterial({ color: 0x1a3a5c, linewidth: 1 });
-    const edge = new THREE.LineSegments(edgeGeo, edgeMat);
-    this.group.add(edge);
-  }
-
-  // ── ZLATNE TRACE — karakteristične za premium PCB ──
-  _buildGoldTraces() {
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0xD4AF37,
-      roughness: 0.12,
-      metalness: 1.0,
-    });
-
-    // Glavni power rails
-    const powerTraces = [
-      { w: 6.5, d: 0.05, x: 0, z:  2.2 }, // VCC rail
-      { w: 6.5, d: 0.05, x: 0, z: -2.2 }, // GND rail
-      { w: 0.04, d: 4.0, x: 3.1, z: 0  }, // Right power
-      { w: 0.04, d: 4.0, x:-3.1, z: 0  }, // Left power
-    ];
-
-    // Data traces — tanje
-    const dataTraces = [
-      { w: 3.0, d: 0.02, x: -1.2, z: 0.8  },
-      { w: 3.0, d: 0.02, x: -1.2, z: 0.5  },
-      { w: 3.0, d: 0.02, x: -1.2, z: 0.2  },
-      { w: 3.0, d: 0.02, x: -1.2, z:-0.2  },
-      { w: 2.0, d: 0.02, x:  1.5, z: 1.2  },
-      { w: 2.0, d: 0.02, x:  1.5, z: 0.9  },
-      { w: 2.0, d: 0.02, x:  1.5, z: 0.6  },
-      { w: 0.02,d: 1.8,  x: -0.2, z: 0.0  },
-      { w: 0.02,d: 1.8,  x:  0.2, z: 0.0  },
-      { w: 0.02,d: 1.2,  x:  2.5, z: 0.0  },
-      { w: 1.5, d: 0.02, x:  2.2, z:-0.8  },
-      { w: 1.5, d: 0.02, x:  2.2, z:-1.1  },
-    ];
-
-    [...powerTraces, ...dataTraces].forEach(({ w, d, x, z }) => {
-      const geo = new THREE.BoxGeometry(w, 0.01, d);
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(x, 0.065, z);
-      this.group.add(mesh);
-    });
-  }
-
-  // ── STM32 GLAVNI ČIPOVI — centralni fokus ──
-  _buildSTM32Chip() {
-    // Glavni MCU — LQFP100 paket
-    const bodyGeo = new THREE.BoxGeometry(1.4, 0.18, 1.4);
-    const bodyMat = new THREE.MeshStandardMaterial({
-      color: 0x1a1a1a,
-      roughness: 0.7,
       metalness: 0.05,
     });
-    const mcu = new THREE.Mesh(bodyGeo, bodyMat);
-    mcu.position.set(-0.5, 0.15, 0);
-    mcu.castShadow = true;
-    mcu.name = 'SMD_IC_STM32';
-    this.group.add(mcu);
-    this.components.push(mcu);
+    const board = new THREE.Mesh(geo, mat);
+    board.position.y = y;
+    board.castShadow = true;
+    board.receiveShadow = true;
+    board.name = isTop ? 'PCB_Substrate' : `PCB_Layer_${index}`;
+    this.group.add(board);
 
-    // STM32 logo marking
-    const markGeo = new THREE.BoxGeometry(1.0, 0.002, 0.12);
-    const markMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 1.0,
-      emissive: 0xffffff,
-      emissiveIntensity: 0.08,
+    // Zlatna bakrena površina (ivice pločice)
+    const edgeMat = new THREE.MeshStandardMaterial({
+      color: 0xC8941A,
+      roughness: 0.2,
+      metalness: 0.9,
     });
-    const mark = new THREE.Mesh(markGeo, markMat);
-    mark.position.set(-0.5, 0.242, -0.35);
-    this.group.add(mark);
+    // Lijeva i desna ivica
+    [-2.52, 2.52].forEach(x => {
+      const eg = new THREE.BoxGeometry(0.04, 0.10, 4.0);
+      const em = new THREE.Mesh(eg, edgeMat);
+      em.position.set(x, y, 0);
+      this.group.add(em);
+    });
+    // Prednja i zadnja ivica
+    [-2.02, 2.02].forEach(z => {
+      const eg = new THREE.BoxGeometry(5.0, 0.10, 0.04);
+      const em = new THREE.Mesh(eg, edgeMat);
+      em.position.set(0, y, z);
+      this.group.add(em);
+    });
 
-    // Pin-ovi na sve 4 strane (LQFP100 = 25 pina po strani)
-    const pinMat = new THREE.MeshStandardMaterial({
-      color: 0xC0C0C0, roughness: 0.08, metalness: 0.98
-    });
-    const sides = [
-      { axis: 'x', sign:  1, rotate: false },
-      { axis: 'x', sign: -1, rotate: false },
-      { axis: 'z', sign:  1, rotate: true  },
-      { axis: 'z', sign: -1, rotate: true  },
+    if (isTop) {
+      this._buildTopComponents(y);
+    } else {
+      this._buildSimpleComponents(y, index);
+    }
+  }
+
+  _buildTopComponents(y) {
+    const base = y + 0.07;
+
+    // ── GLAVNI ČIPS (crni LQFP) ──────────────────────
+    this._addICChip(0.2, base, -0.3, 1.1, 0.15, 1.1, 28, 'CPU');
+
+    // Mali IC čipovi
+    this._addICChip(-1.5, base, -1.0, 0.65, 0.12, 0.65, 16, 'IC1');
+    this._addICChip( 1.6, base, -1.0, 0.55, 0.10, 0.55, 14, 'IC2');
+    this._addICChip( 1.6, base,  0.8, 0.55, 0.10, 0.55, 14, 'IC3');
+    this._addICChip(-1.5, base,  1.0, 0.65, 0.12, 0.65, 16, 'IC4');
+
+    // ── KONDENZATORI (crni elektrolitski) ─────────────
+    const caps = [
+      [-0.8, base, -1.3, 0.18, 0.5],
+      [-0.5, base, -1.3, 0.15, 0.4],
+      [-0.2, base, -1.3, 0.18, 0.55],
+      [ 0.1, base, -1.3, 0.14, 0.38],
+      [ 0.4, base, -1.3, 0.18, 0.5],
+      [-1.8, base,  0.2, 0.16, 0.45],
+      [-1.8, base,  0.5, 0.18, 0.5],
+      [-1.8, base, -0.3, 0.14, 0.4],
     ];
+    caps.forEach(([x, yy, z, r, h]) => this._addCapacitor(x, yy, z, r, h));
 
-    sides.forEach(({ axis, sign, rotate }) => {
-      for (let i = 0; i < 25; i++) {
-        const pinGeo = new THREE.BoxGeometry(
-          rotate ? 0.09 : 0.015,
-          0.015,
-          rotate ? 0.015 : 0.09
-        );
-        const pin = new THREE.Mesh(pinGeo, pinMat);
-        const offset = -0.6 + i * 0.05;
-        pin.position.set(
-          axis === 'x' ? -0.5 + sign * 0.75 : -0.5 + offset,
-          0.148,
-          axis === 'z' ? sign * 0.75 : offset
-        );
-        this.group.add(pin);
-      }
-    });
+    // ── ZLATNI HEADER PINOVI (dolje-lijevo) ──────────
+    this._buildGoldHeader(-1.8, base, 1.5, 10, 2);
+    this._buildGoldHeader( 0.5, base, 1.5, 8,  2);
 
-    // Drugi STM modul — desno
-    const mcu2 = new THREE.Mesh(
-      new THREE.BoxGeometry(0.9, 0.14, 0.9),
-      bodyMat.clone()
-    );
-    mcu2.position.set(1.8, 0.13, 0.6);
-    mcu2.castShadow = true;
-    mcu2.name = 'SMD_IC_STM_AUX';
-    this.group.add(mcu2);
-    this.components.push(mcu2);
+    // ── SMD REZISTORI ─────────────────────────────────
+    for (let i = 0; i < 8; i++) {
+      this._addResistor(-2.0 + i * 0.45, base, 0.3, 0.18, 0.06, 0.10);
+    }
+    for (let i = 0; i < 6; i++) {
+      this._addResistor(-1.5 + i * 0.4, base, 1.1, 0.16, 0.055, 0.09);
+    }
+
+    // ── ZLATNE TRACE ──────────────────────────────────
+    this._buildTraces(y + 0.055);
+
+    // ── MONTAŽNE RUPE ─────────────────────────────────
+    this._buildMountingHoles(y);
   }
 
-  // ── MEMORIJA — SOIC paketi ──
-  _buildMemoryChips() {
-    const chipMat = new THREE.MeshStandardMaterial({
-      color: 0x111111, roughness: 0.75, metalness: 0.05
+  _buildSimpleComponents(y, idx) {
+    const base = y + 0.07;
+    // Svaki layer ima manje komponenti (vidljivi sa strane)
+    const seed = idx * 7;
+    // Nekoliko rezistora
+    for (let i = 0; i < 4; i++) {
+      const x = -1.5 + i * 0.8 + (seed % 3) * 0.1;
+      this._addResistor(x, base, ((seed % 4) - 1.5) * 0.5, 0.16, 0.055, 0.09);
+    }
+    // Mali kondenzator
+    if (idx % 2 === 0) {
+      this._addCapacitor(-1.5 + (seed % 4) * 0.6, base, 0.5, 0.12, 0.3);
+    }
+    // Trace linija
+    const traceMat = new THREE.MeshStandardMaterial({ color: 0xC8941A, roughness: 0.2, metalness: 0.9 });
+    const tg = new THREE.BoxGeometry(3.0, 0.008, 0.02);
+    const tm = new THREE.Mesh(tg, traceMat);
+    tm.position.set(0, y + 0.055, (seed % 3 - 1) * 0.4);
+    this.group.add(tm);
+  }
+
+  _addICChip(x, y, z, w, h, d, pinCount, name) {
+    // Crno tijelo čipa
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: 0x111111, roughness: 0.7, metalness: 0.05,
     });
-    const pinMat = new THREE.MeshStandardMaterial({
-      color: 0xBBBBBB, roughness: 0.1, metalness: 0.95
-    });
+    const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), bodyMat);
+    body.position.set(x, y + h/2, z);
+    body.castShadow = true;
+    body.name = `SMD_IC_${name}`;
+    this.group.add(body);
+    this.components.push(body);
 
-    const chips = [
-      { x: -2.2, z: -1.2, w: 0.8, d: 0.5, pins: 8, name: 'FLASH' },
-      { x: -2.2, z: -1.9, w: 0.8, d: 0.5, pins: 8, name: 'EEPROM' },
-      { x:  2.5, z: -1.5, w: 0.7, d: 0.45, pins: 8, name: 'RAM' },
-    ];
+    // Bijeli trokut marker (pin 1)
+    const markerMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1 });
+    const marker = new THREE.Mesh(new THREE.BoxGeometry(0.08, h + 0.001, 0.08), markerMat);
+    marker.position.set(x - w/2 + 0.1, y + h/2, z - d/2 + 0.1);
+    this.group.add(marker);
 
-    chips.forEach(({ x, z, w, d, pins, name }) => {
-      const chip = new THREE.Mesh(new THREE.BoxGeometry(w, 0.12, d), chipMat);
-      chip.position.set(x, 0.12, z);
-      chip.castShadow = true;
-      chip.name = `SMD_IC_${name}`;
-      this.group.add(chip);
-      this.components.push(chip);
+    // Srebrni pin-ovi na sve 4 strane
+    const pinMat = new THREE.MeshStandardMaterial({ color: 0xC0C0C0, roughness: 0.08, metalness: 0.95 });
+    const pinsPerSide = Math.floor(pinCount / 4);
+    const spacing = w / (pinsPerSide + 1);
 
-      // Pinovi lijevo/desno
-      for (let i = 0; i < pins / 2; i++) {
-        const pz = z - d/2 + (d / (pins/2)) * (i + 0.5);
-        [-1, 1].forEach(side => {
-          const pin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.01, 0.025), pinMat);
-          pin.position.set(x + side * (w/2 + 0.04), 0.07, pz);
-          this.group.add(pin);
-        });
-      }
+    for (let i = 0; i < pinsPerSide; i++) {
+      const px = x - w/2 + spacing * (i + 1);
+      // Prednja i zadnja strana
+      [-1, 1].forEach(side => {
+        const pg = new THREE.BoxGeometry(spacing * 0.55, 0.012, 0.12);
+        const pm = new THREE.Mesh(pg, pinMat);
+        pm.position.set(px, y + 0.01, z + side * (d/2 + 0.06));
+        this.group.add(pm);
+      });
+    }
+    const spacingD = d / (pinsPerSide + 1);
+    for (let i = 0; i < pinsPerSide; i++) {
+      const pz = z - d/2 + spacingD * (i + 1);
+      [-1, 1].forEach(side => {
+        const pg = new THREE.BoxGeometry(0.12, 0.012, spacingD * 0.55);
+        const pm = new THREE.Mesh(pg, pinMat);
+        pm.position.set(x + side * (w/2 + 0.06), y + 0.01, pz);
+        this.group.add(pm);
+      });
+    }
+  }
+
+  _addCapacitor(x, y, z, radius, height) {
+    // Crni/tamni elektrolitski kondenzator
+    const colors = [0x1a1a1a, 0x222233, 0x1a1a2a];
+    const color = colors[Math.floor(Math.abs(x * z * 10)) % colors.length];
+    const capMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.1 });
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, 16), capMat);
+    cap.position.set(x, y + height/2, z);
+    cap.castShadow = true;
+    cap.name = 'SMD_Capacitor';
+    this.group.add(cap);
+    this.components.push(cap);
+
+    // Bijela traka (negativni pol)
+    const bandMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.9 });
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(radius+0.002, radius+0.002, 0.05, 16, 1, true), bandMat);
+    band.position.set(x, y + height - 0.025, z);
+    this.group.add(band);
+
+    // Top disk (srebrni)
+    const topMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.3, metalness: 0.6 });
+    const top = new THREE.Mesh(new THREE.CircleGeometry(radius * 0.9, 16), topMat);
+    top.rotation.x = -Math.PI/2;
+    top.position.set(x, y + height, z);
+    this.group.add(top);
+  }
+
+  _addResistor(x, y, z, w, h, d) {
+    const resMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.85 });
+    const res = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), resMat);
+    res.position.set(x, y + h/2, z);
+    res.name = 'SMD_Resistor';
+    this.group.add(res);
+    this.components.push(res);
+    // Srebrne krajeve
+    const capMat = new THREE.MeshStandardMaterial({ color: 0xC0C0C0, roughness: 0.1, metalness: 0.95 });
+    [-1, 1].forEach(s => {
+      const cg = new THREE.BoxGeometry(0.035, h + 0.002, d + 0.002);
+      const cm = new THREE.Mesh(cg, capMat);
+      cm.position.set(x + s*(w/2 - 0.017), y + h/2, z);
+      this.group.add(cm);
     });
   }
 
-  // ── POWER SECTION — regulatori napona ──
-  _buildPowerSection() {
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0x1a1a1a, roughness: 0.7, metalness: 0.05
-    });
+  _buildGoldHeader(x, y, z, cols, rows) {
+    // Crno plastično kućište
+    const w = cols * 0.22 + 0.1, d = rows * 0.22 + 0.1;
+    const houseMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+    const house = new THREE.Mesh(new THREE.BoxGeometry(w, 0.12, d), houseMat);
+    house.position.set(x, y + 0.06, z);
+    this.group.add(house);
 
-    // Linearni regulator (SOT-223)
-    const reg = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.2, 0.45), mat);
-    reg.position.set(-2.8, 0.17, 1.5);
-    reg.castShadow = true;
-    reg.name = 'SMD_IC_LDO';
-    this.group.add(reg);
-    this.components.push(reg);
-
-    // Heatsink površina regulatora (srebrna)
-    const hsMat = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.3, metalness: 0.8 });
-    const hs = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.01, 0.3), hsMat);
-    hs.position.set(-2.8, 0.271, 1.58);
-    this.group.add(hs);
-
-    // Buck converter (SOP-8)
-    const buck = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.15, 0.55), mat.clone());
-    buck.position.set(-2.8, 0.135, 0.8);
-    buck.castShadow = true;
-    buck.name = 'SMD_IC_BUCK';
-    this.group.add(buck);
-    this.components.push(buck);
-
-    // Induktivitet (cilindrični, žuto-zeleni)
-    const indGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.18, 12);
-    const indMat = new THREE.MeshStandardMaterial({
-      color: 0x4a5a2a, roughness: 0.6, metalness: 0.1
-    });
-    const ind = new THREE.Mesh(indGeo, indMat);
-    ind.position.set(-2.2, 0.16, 1.1);
-    ind.castShadow = true;
-    this.group.add(ind);
-    this.components.push(ind);
-  }
-
-  // ── KONEKTORI — USB, SWD, napajanje ──
-  _buildConnectors() {
-    const metalMat = new THREE.MeshStandardMaterial({
-      color: 0x777777, roughness: 0.25, metalness: 0.85
-    });
-
-    // Micro-USB konektor
-    const usbGeo = new THREE.BoxGeometry(0.7, 0.3, 0.5);
-    const usb = new THREE.Mesh(usbGeo, metalMat);
-    usb.position.set(3.5, 0.21, 0);
-    usb.castShadow = true;
-    usb.name = 'Connector_USB';
-    this.group.add(usb);
-
-    // USB port unutrašnjost
-    const portMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
-    const port = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.2, 0.12), portMat);
-    port.position.set(3.62, 0.21, 0);
-    this.group.add(port);
-
-    // SWD debug header (2x5 pin)
-    this._buildPinHeader(2.8, 0.14, -1.8, 5, 2);
-
-    // Power header (1x3)
-    this._buildPinHeader(-3.2, 0.14, 1.9, 3, 1);
-
-    // GPIO header (2x10)
-    this._buildPinHeader(-3.0, 0.14, -0.2, 10, 2);
-  }
-
-  _buildPinHeader(x, y, z, rows, cols) {
-    const baseMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2a, roughness: 0.9 });
-    const pinMat  = new THREE.MeshStandardMaterial({ color: 0xD4AF37, roughness: 0.1, metalness: 1.0 });
-
-    const w = cols * 0.22 + 0.1;
-    const d = rows * 0.22 + 0.1;
-    const base = new THREE.Mesh(new THREE.BoxGeometry(w, 0.14, d), baseMat);
-    base.position.set(x, y, z);
-    this.group.add(base);
-
+    // Zlatni pinovi
+    const pinMat = new THREE.MeshStandardMaterial({ color: 0xD4AF37, roughness: 0.1, metalness: 1.0 });
     for (let c = 0; c < cols; c++) {
       for (let r = 0; r < rows; r++) {
-        const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.4, 6), pinMat);
+        const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.45, 6), pinMat);
         pin.position.set(
           x - (cols-1)*0.11 + c*0.22,
-          y + 0.2,
+          y + 0.22,
           z - (rows-1)*0.11 + r*0.22
         );
         this.group.add(pin);
@@ -295,196 +252,86 @@ export class ProceduralPCB {
     }
   }
 
-  // ── KVARCNI OSCILATOR ──
-  _buildCrystal() {
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0xC8A800, roughness: 0.2, metalness: 0.85
-    });
-    // Tijelo (metalni cilinder, zlatno)
-    const crystalGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.38, 8);
-    const crystal = new THREE.Mesh(crystalGeo, mat);
-    crystal.position.set(0.8, 0.25, -1.6);
-    crystal.rotation.z = Math.PI / 2;
-    crystal.castShadow = true;
-    crystal.name = 'Crystal_OSC';
-    this.group.add(crystal);
-    this.components.push(crystal);
-
-    // Nožice
-    const legMat = new THREE.MeshStandardMaterial({ color: 0xC0C0C0, roughness: 0.1, metalness: 0.95 });
-    [-0.18, 0.18].forEach(dz => {
-      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.16, 6), legMat);
-      leg.position.set(0.8, 0.08, -1.6 + dz);
-      this.group.add(leg);
-    });
-  }
-
-  // ── PASIVNE KOMPONENTE — rezistori i kondenzatori ──
-  _buildPassives() {
-    // Elektroliti
-    const capPositions = [
-      [1.2, 0.13, -1.6], [1.5, 0.13, -1.6], [1.8, 0.13, -1.6],
-      [-1.5, 0.11, 1.8], [-1.9, 0.11, 1.8],
+  _buildTraces(y) {
+    const mat = new THREE.MeshStandardMaterial({ color: 0xC8941A, roughness: 0.18, metalness: 0.88 });
+    const traces = [
+      { w: 3.5, d: 0.02, x: -0.2, z:  0.5 },
+      { w: 3.5, d: 0.02, x: -0.2, z:  0.2 },
+      { w: 2.0, d: 0.02, x:  1.2, z: -0.5 },
+      { w: 0.02, d: 2.5, x:  0.8, z:  0.2 },
+      { w: 0.02, d: 2.5, x: -0.8, z:  0.2 },
+      { w: 1.5, d: 0.015, x: -1.0, z: -0.8 },
+      { w: 0.015, d: 1.8, x:  1.5, z:  0.5 },
     ];
-    capPositions.forEach(([x, y, z], i) => {
-      const h = 0.28 + i * 0.04;
-      const r = 0.1 + (i % 2) * 0.02;
-      const capMat = new THREE.MeshStandardMaterial({
-        color: [0x1a4db0, 0xb02020, 0x1a8020][i % 3],
-        roughness: 0.5, metalness: 0.1
-      });
-      const cap = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), capMat);
-      cap.position.set(x, y + h/2, z);
-      cap.castShadow = true;
-      cap.name = 'SMD_Capacitor';
-      this.group.add(cap);
-      this.components.push(cap);
-
-      // Bijeli prsten na vrhu
-      const ringMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.9 });
-      const ring = new THREE.Mesh(new THREE.CylinderGeometry(r+0.002, r+0.002, 0.04, 16, 1, true), ringMat);
-      ring.position.set(x, y + h - 0.02, z);
-      this.group.add(ring);
+    traces.forEach(({ w, d, x, z }) => {
+      const geo = new THREE.BoxGeometry(w, 0.008, d);
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(x, y, z);
+      this.group.add(m);
     });
 
-    // SMD rezistori (0402 i 0603)
-    const resMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.9 });
-    const capSMDMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.7 });
-    const endMat = new THREE.MeshStandardMaterial({ color: 0xC0C0C0, roughness: 0.08, metalness: 0.95 });
-
-    // Niz rezistora
-    for (let i = 0; i < 8; i++) {
-      const x = -3.2 + i * 0.42;
-      const res = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.06, 0.1), resMat);
-      res.position.set(x, 0.09, 2.0);
-      res.name = 'SMD_Resistor';
-      this.group.add(res);
-      this.components.push(res);
-      [-0.08, 0.08].forEach(dx => {
-        const e = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.062, 0.102), endMat);
-        e.position.set(x+dx, 0.09, 2.0);
-        this.group.add(e);
-      });
-    }
-
-    // Niz SMD kap
-    for (let i = 0; i < 6; i++) {
-      const x = -1.0 + i * 0.38;
-      const c = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.09, 0.12), capSMDMat);
-      c.position.set(x, 0.105, -2.1);
-      c.name = 'SMD_Capacitor';
-      this.group.add(c);
-      this.components.push(c);
-    }
-
-    // Ferit bead
-    const fbMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.85 });
-    for (let i = 0; i < 3; i++) {
-      const fb = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.07, 0.14), fbMat);
-      fb.position.set(2.0 + i*0.32, 0.095, 1.8);
-      this.group.add(fb);
-    }
-  }
-
-  // ── VIAS ──
-  _buildVias() {
-    const viaMat = new THREE.MeshStandardMaterial({
-      color: 0xD4AF37, roughness: 0.08, metalness: 1.0
-    });
-    const ringMat = new THREE.MeshStandardMaterial({
-      color: 0xD4AF37, roughness: 0.08, metalness: 1.0, side: THREE.DoubleSide
-    });
-
-    const vias = [
-      [0,0], [1,1], [-1,1], [1,-1], [-1,-1],
-      [2.5, 0.5], [-2.5, 0.5], [0.5, 2.0], [-0.5, -2.0],
-      [3.0, -1.0], [-3.0, -1.0], [2.0, -2.0],
-    ];
-
-    vias.forEach(([x, z]) => {
-      const via = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.14, 8), viaMat);
-      via.position.set(x, 0, z);
+    // Via rupe
+    const viaMat = new THREE.MeshStandardMaterial({ color: 0xD4AF37, roughness: 0.1, metalness: 1.0 });
+    [[0.5, 0.8], [-0.5, 0.8], [1.2, -0.3], [-1.2, -0.3], [0, 0]].forEach(([x, z]) => {
+      const via = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.12, 8), viaMat);
+      via.position.set(x, y - 0.01, z);
       this.group.add(via);
-
-      const ring = new THREE.Mesh(new THREE.RingGeometry(0.04, 0.085, 8), ringMat);
-      ring.rotation.x = -Math.PI / 2;
-      ring.position.set(x, 0.065, z);
-      this.group.add(ring);
     });
+  }
 
-    // Mounting holes sa prstenovima
-    [[-3.4, 2.2], [3.4, 2.2], [-3.4, -2.2], [3.4, -2.2]].forEach(([x, z]) => {
-      const holeMat = new THREE.MeshStandardMaterial({ color: 0x050a10, roughness: 1.0 });
-      const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.14, 12), holeMat);
-      hole.position.set(x, 0, z);
+  _buildMountingHoles(y) {
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0xD4AF37, roughness: 0.1, metalness: 1.0, side: THREE.DoubleSide });
+    const holeMat = new THREE.MeshStandardMaterial({ color: 0x0a1a0a, roughness: 1.0 });
+    [[-2.3, -1.8], [2.3, -1.8], [-2.3, 1.8], [2.3, 1.8]].forEach(([x, z]) => {
+      const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.14, 12), holeMat);
+      hole.position.set(x, y, z);
       this.group.add(hole);
-      const ring = new THREE.Mesh(new THREE.RingGeometry(0.16, 0.26, 12), ringMat.clone());
-      ring.rotation.x = -Math.PI / 2;
-      ring.position.set(x, 0.065, z);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.14, 0.24, 12), ringMat);
+      ring.rotation.x = -Math.PI/2;
+      ring.position.set(x, y + 0.056, z);
       this.group.add(ring);
     });
   }
 
-  // ── SILKSCREEN — bijeli natpisi i markeri ──
-  _buildSilkscreen() {
-    const silkMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 1.0,
-      metalness: 0.0,
-      emissive: 0xffffff,
-      emissiveIntensity: 0.04,
+  _buildStandoffs(count, gap) {
+    const mat = new THREE.MeshStandardMaterial({ color: 0xC8941A, roughness: 0.15, metalness: 0.95 });
+    const totalH = count * gap;
+    [[-2.3, -1.8], [2.3, -1.8], [-2.3, 1.8], [2.3, 1.8]].forEach(([x, z]) => {
+      const st = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, totalH, 8), mat);
+      st.position.set(x, 0, z);
+      this.group.add(st);
     });
-
-    // Oznake konektora — horizontalne linije
-    const silkLines = [
-      { w: 0.8, d: 0.01, x: 2.8, z: 0.35 },
-      { w: 0.8, d: 0.01, x: 2.8, z:-0.35 },
-      { w: 0.01, d: 0.5, x: 2.4, z: 0 },
-      { w: 1.5, d: 0.01, x:-2.5, z: 0.55 },
-      { w: 1.5, d: 0.01, x:-2.5, z:-0.55 },
-    ];
-
-    silkLines.forEach(({ w, d, x, z }) => {
-      const geo = new THREE.BoxGeometry(w, 0.001, d);
-      const mesh = new THREE.Mesh(geo, silkMat);
-      mesh.position.set(x, 0.067, z);
-      this.group.add(mesh);
-    });
-
-    // Polaritetni marker za kondenzator ("+")
-    const plus = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.001, 0.01), silkMat);
-    plus.position.set(1.12, 0.067, -1.6);
-    this.group.add(plus);
   }
 
-  highlightComponent(keyword, color = 0x00aaff) {
+  highlightComponent(keyword, color = 0x5FABDB) {
     const c = new THREE.Color(color);
     this.components.forEach(comp => {
-      if (!comp.name.toLowerCase().includes(keyword.toLowerCase())) return;
-      if (!comp.material) return;
-      gsap.to(comp.material.emissive, { r: c.r, g: c.g, b: c.b, duration: 0.7, ease: 'power2.out' });
-      gsap.to(comp.material, { emissiveIntensity: 0.35, duration: 0.7 });
+      if (!comp.name.toLowerCase().includes(keyword.toLowerCase()) || !comp.material) return;
+      gsap.to(comp.material.emissive, { r:c.r, g:c.g, b:c.b, duration:0.6, ease:'power2.out' });
+      gsap.to(comp.material, { emissiveIntensity: 0.3, duration:0.6 });
     });
   }
 
   resetHighlights() {
     this.components.forEach(comp => {
       if (!comp.material) return;
-      gsap.to(comp.material.emissive, { r: 0, g: 0, b: 0, duration: 0.4 });
-      gsap.to(comp.material, { emissiveIntensity: 0, duration: 0.4 });
+      gsap.to(comp.material.emissive, { r:0, g:0, b:0, duration:0.4 });
+      gsap.to(comp.material, { emissiveIntensity:0, duration:0.4 });
     });
   }
 
   playAssemblyAnimation() {
-    this.components.forEach((comp, i) => {
-      const oy = comp.position.y;
-      comp.position.y = oy + 3 + Math.random() * 2;
-      if (comp.material) {
-        comp.material.transparent = true;
-        comp.material.opacity = 0;
-      }
-      gsap.to(comp.position, { y: oy, duration: 0.9 + Math.random() * 0.5, delay: i * 0.04, ease: 'elastic.out(1, 0.65)' });
-      if (comp.material) gsap.to(comp.material, { opacity: 1, duration: 0.45, delay: i * 0.04 });
+    // Svaki layer pada od gore
+    const children = this.group.children;
+    children.forEach((obj, i) => {
+      const oy = obj.position.y;
+      obj.position.y = oy + 5 + Math.random() * 2;
+      gsap.to(obj.position, {
+        y: oy,
+        duration: 1.2 + Math.random() * 0.4,
+        delay: i * 0.008,
+        ease: 'elastic.out(1, 0.7)'
+      });
     });
   }
 }
