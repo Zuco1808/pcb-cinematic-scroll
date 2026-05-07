@@ -14,9 +14,9 @@ export function setupPostProcessing(renderer, scene, camera) {
   // 2. Bloom — PCB glow i reflekcije
   const bloom = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.65,   // strength
-    0.4,    // radius
-    0.84    // threshold
+    0.30,   // strength — light theme
+    0.35,   // radius
+    0.90    // threshold
   );
   composer.addPass(bloom);
 
