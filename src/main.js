@@ -1,4 +1,3 @@
-// src/main.js
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SceneManager }       from './scene/SceneManager.js';
@@ -12,117 +11,75 @@ import { AudioManager }       from './audio/AudioManager.js';
 import { createUnderglowMaterial } from './shaders/UnderglowShader.js';
 
 gsap.registerPlugin(ScrollTrigger);
-
-// KRITIČNO: body mora imati visinu za scroll
-// Svaka sekcija = 100vh, imamo 4 sekcije + margine
 document.body.style.height = '500vh';
-
-// Canvas je FIXED, page content lebdi iznad njega
-// Sekcije su prozirne — canvas se vidi ispod
 
 async function init() {
   applyMobileScrollFix();
 
-  const container = document.getElementById('cv');
-  const sm = new SceneManager(container);
-
-  // Post-processing
+  const sm = new SceneManager(document.getElementById('cv'));
   const { composer, bloom } = setupPostProcessing(sm.renderer, sm.scene, sm.camera);
-  sm.setComposer(composer);
-  sm.bloom = bloom;
+  sm.setComposer(composer); sm.bloom = bloom;
 
-  // PCB
   const pcb = new ProceduralPCB(sm.scene);
-  pcb.build();
-  sm.pcb = pcb;
+  pcb.build(); sm.pcb = pcb;
 
-  // Underglow shader
   const underglowMat = createUnderglowMaterial();
   sm.registerShaderMaterial(underglowMat);
-  const substrate = sm.scene.getObjectByName('PCB_Substrate');
-  if (substrate) substrate.material = underglowMat;
+  const sub = sm.scene.getObjectByName('PCB_Substrate');
+  if(sub) sub.material = underglowMat;
 
-  // Layers
   const layers = new LayerManager(sm.scene);
-
-  // Performance
   const perf = new PerformanceManager(sm.renderer, composer);
 
-  // Tick
-  sm.onTick = (camPos) => {
-    layers.updateParallax(camPos.x, camPos.y);
+  sm.onTick = (cp) => {
+    layers.updateParallax(cp.x, cp.y);
     perf.tick();
-    if (sm.bloom) {
-      const phase = document.body.getAttribute('data-phase') || 'hero';
-      const bMap = { hero: 0.45, transition: 0.80, detail: 1.20, cta: 0.50 };
-      sm.bloom.strength += ((bMap[phase] || 0.45) - sm.bloom.strength) * 0.04;
+    if(sm.bloom){
+      const p = document.body.getAttribute('data-phase')||'hero';
+      const m = {hero:.7,transition:1.1,detail:1.6,cta:.8};
+      sm.bloom.strength += ((m[p]||.7)-sm.bloom.strength)*.04;
     }
   };
 
-  // Scroll animacija
-  const scrollCtrl = new ScrollController(sm);
-
-  // Audio
+  const sc = new ScrollController(sm);
   const audio = new AudioManager();
-  _setupMuteBtn(audio);
-  _setupUploadDrag();
-  _animateHero();
-  setTimeout(() => pcb.playAssemblyAnimation(), 700);
-  _fadeLoading();
 
-  window.addEventListener('pagehide', () => {
-    sm.destroy();
-    scrollCtrl.destroy();
-    audio.destroy();
+  // Mute button
+  const mb = document.getElementById('mb');
+  if(mb) mb.addEventListener('click',()=>{
+    const m = audio.toggleMute();
+    mb.classList.toggle('muted',m);
+    const sw = mb.querySelector('.sw');
+    if(sw) sw.style.opacity = m?'0':'1';
   });
-}
 
-function _animateHero() {
-  gsap.to('.hero-left',  { opacity:1, y:0, duration:1.1, ease:'power3.out', delay:0.6 });
-  gsap.to('.hero-right', { opacity:1, y:0, duration:1.1, ease:'power3.out', delay:0.85 });
-}
-
-function _fadeLoading() {
-  let pct = 0;
-  const bar = document.getElementById('lbf');
-  const pctEl = document.getElementById('lp');
-  const iv = setInterval(() => {
-    pct += Math.random() * 22 + 8;
-    if (pct >= 100) {
-      pct = 100;
-      clearInterval(iv);
-      setTimeout(() => {
-        const s = document.getElementById('ls');
-        if (!s) return;
-        gsap.to(s, { opacity:0, duration:0.6, onComplete:() => s.remove() });
-      }, 250);
-    }
-    if (bar) bar.style.width = `${pct}%`;
-    if (pctEl) pctEl.textContent = `${Math.floor(pct)}%`;
-  }, 65);
-}
-
-function _setupMuteBtn(audio) {
-  const btn = document.getElementById('mute');
-  const waves = btn?.querySelector('.sound-waves');
-  if (!btn) return;
-  btn.addEventListener('click', () => {
-    const muted = audio.toggleMute();
-    btn.classList.toggle('muted', muted);
-    if (waves) waves.style.opacity = muted ? '0' : '1';
-  });
-}
-
-function _setupUploadDrag() {
+  // Upload drag
   const uz = document.getElementById('uz');
-  if (!uz) return;
-  uz.addEventListener('dragover', e => { e.preventDefault(); uz.style.borderColor='var(--tr)'; uz.style.background='var(--tr-bg)'; });
-  uz.addEventListener('dragleave', () => { uz.style.borderColor=''; uz.style.background=''; });
-  uz.addEventListener('drop', e => { e.preventDefault(); uz.querySelector('h4').textContent='✓ File received — processing...'; uz.style.borderColor=''; uz.style.background=''; });
+  if(uz){
+    uz.addEventListener('dragover',e=>{e.preventDefault();uz.style.borderColor='var(--blue)';uz.style.background='var(--blue-10)'});
+    uz.addEventListener('dragleave',()=>{uz.style.borderColor='';uz.style.background=''});
+    uz.addEventListener('drop',e=>{e.preventDefault();uz.querySelector('h4').textContent='✓ File received';uz.style.borderColor='';uz.style.background=''});
+  }
+
+  // Hero entrance
+  gsap.to('.hero-left',{opacity:1,y:0,duration:1.1,ease:'power3.out',delay:.6});
+  gsap.to('.hero-right',{opacity:1,y:0,duration:1.1,ease:'power3.out',delay:.85});
+
+  setTimeout(()=>pcb.playAssemblyAnimation(),700);
+
+  // Loading fade
+  let pct=0;
+  const bar=document.getElementById('lbf'), pctEl=document.getElementById('lp');
+  const iv=setInterval(()=>{
+    pct+=Math.random()*22+8;
+    if(pct>=100){pct=100;clearInterval(iv);
+      setTimeout(()=>{const s=document.getElementById('ls');if(s)gsap.to(s,{opacity:0,duration:.6,onComplete:()=>s.remove()})},200);
+    }
+    if(bar)bar.style.width=pct+'%';
+    if(pctEl)pctEl.textContent=Math.floor(pct)+'%';
+  },65);
+
+  window.addEventListener('pagehide',()=>{sm.destroy();sc.destroy();audio.destroy()});
 }
 
-init().catch(err => {
-  console.error(err);
-  const s = document.getElementById('ls');
-  if (s) s.remove();
-});
+init().catch(e=>{console.error(e);const s=document.getElementById('ls');if(s)s.remove()});
