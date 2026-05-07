@@ -162,8 +162,12 @@ export class ScrollController {
   }
 
   _setupTextAnimations() {
-    // Section labels
-    document.querySelectorAll('.section-label').forEach(el => {
+    // Hero entrance
+    gsap.to('.hero-left', { opacity:1, y:0, duration:1.1, ease:'power3.out', delay:0.5 });
+    gsap.to('.hero-right',{ opacity:1, y:0, duration:1.1, ease:'power3.out', delay:0.7 });
+
+    // Section eyebrows
+    document.querySelectorAll('.s-eyebrow').forEach(el => {
       gsap.to(el, {
         opacity: 1, y: 0, duration: 0.7, ease: 'power2.out',
         scrollTrigger: { trigger: el, start: 'top 85%', invalidateOnRefresh: true }
@@ -171,7 +175,7 @@ export class ScrollController {
     });
 
     // Section headings
-    document.querySelectorAll('.section h2').forEach(el => {
+    document.querySelectorAll('.s-title').forEach(el => {
       gsap.to(el, {
         opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
         scrollTrigger: { trigger: el, start: 'top 82%', invalidateOnRefresh: true }
@@ -179,7 +183,7 @@ export class ScrollController {
     });
 
     // Section subtitles
-    document.querySelectorAll('.section-sub').forEach(el => {
+    document.querySelectorAll('.s-sub').forEach(el => {
       gsap.to(el, {
         opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.1,
         scrollTrigger: { trigger: el, start: 'top 82%', invalidateOnRefresh: true }
@@ -189,31 +193,36 @@ export class ScrollController {
     // Process steps — stagger
     gsap.to('.process-step', {
       opacity: 1, x: 0, duration: 0.7, ease: 'power2.out',
-      stagger: 0.12,
+      stagger: 0.1,
       scrollTrigger: { trigger: '.process-steps', start: 'top 75%', invalidateOnRefresh: true }
     });
 
     // Features grid
-    gsap.to('.features-grid', {
+    gsap.to('.caps-grid', {
       opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
-      scrollTrigger: { trigger: '.features-grid', start: 'top 80%', invalidateOnRefresh: true }
+      scrollTrigger: { trigger: '.caps-grid', start: 'top 80%', invalidateOnRefresh: true }
+    });
+
+    gsap.to('#process-visual', {
+      opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
+      scrollTrigger: { trigger: '#process-visual', start: 'top 80%', invalidateOnRefresh: true }
     });
 
     // Upload box
-    gsap.to('.upload-box', {
+    gsap.to('.cta-upload-box', {
       opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
-      scrollTrigger: { trigger: '.upload-box', start: 'top 80%', invalidateOnRefresh: true }
+      scrollTrigger: { trigger: '.cta-upload-box', start: 'top 80%', invalidateOnRefresh: true }
     });
 
     // Cert row
-    gsap.to('#cert-row', {
+    gsap.to('#cert-strip', {
       opacity: 1, duration: 0.8, delay: 0.3,
       scrollTrigger: { trigger: '#cert-row', start: 'top 90%', invalidateOnRefresh: true }
     });
   }
 
   _setupPhaseIndicator() {
-    const dots = document.querySelectorAll('.phase-dot');
+    const dots = document.querySelectorAll('.pdot');
     const phaseMap = { hero: 0, transition: 1, detail: 2, cta: 3 };
 
     this._updatePhaseIndicator = (phase) => {

@@ -18,9 +18,9 @@ export class LayerManager {
     group.position.z = -9;
 
     const lineMat = new THREE.LineBasicMaterial({
-      color: 0xb8d8ed,
+      color: 0x0a1f3a,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.3,
     });
 
     // Horizontalne linije
@@ -39,11 +39,11 @@ export class LayerManager {
 
     // Veliki plane za fog catch
     const planeMat = new THREE.MeshStandardMaterial({
-      color: 0xf0f7fd,
+      color: 0x060d18,
       roughness: 1.0,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.88,
     });
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(30, 20), planeMat);
     plane.position.z = -0.1;
@@ -58,7 +58,7 @@ export class LayerManager {
     const group = new THREE.Group();
     group.position.z = -4;
 
-    const colors = [0xd0e8f5, 0xbcd8ee, 0xe8f4fb];
+    const colors = [0x0d2a4a, 0x0a1e36, 0x102840];
     const fragData = [
       { w: 1.2, d: 0.8, x: -6, y: 2,  r: 0.3  },
       { w: 0.8, d: 1.2, x:  6, y: -1, r: -0.5 },
@@ -75,7 +75,7 @@ export class LayerManager {
         roughness: 0.5,
         metalness: 0.1,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.3,
       });
       const frag = new THREE.Mesh(geo, mat);
       frag.position.set(x, y, Math.random() * 2 - 1);
@@ -117,7 +117,7 @@ export class LayerManager {
       color: 0x4fc3f7,
       size: 0.035,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.3,
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
@@ -159,10 +159,10 @@ export class LayerManager {
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const material = new THREE.PointsMaterial({
-      color: 0x5FABDB,
-      size: 0.012,
+      color: 0x8fcde8,
+      size: 0.015,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.18,
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false,

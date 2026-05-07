@@ -53,9 +53,9 @@ export function createUnderglowMaterial() {
     uniforms: {
       uTime:          { value: 0 },
       uGlowColor:     { value: new THREE.Color(0x5FABDB) },
-      uGlowIntensity: { value: 0.6 },
+      uGlowIntensity: { value: 1.0 },
       uEdgePower:     { value: 2.8 },
-      uBaseColor:     { value: new THREE.Color(0x1a5c8a) },
+      uBaseColor:     { value: new THREE.Color(0x0d1b2a) },
     },
     side: THREE.FrontSide,
   });

@@ -29,7 +29,7 @@ export class ProceduralPCB {
     // Osnovna pločica
     const geo = new THREE.BoxGeometry(7.2, 0.12, 4.8);
     const mat = new THREE.MeshStandardMaterial({
-      color: 0x1a3a5c,      // Srednje plava — kontrast na bijeloj
+      color: 0x0d1b2a,      // Tamna navy — STM103 stil
       roughness: 0.35,
       metalness: 0.08,
       envMapIntensity: 0.6,

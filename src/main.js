@@ -43,7 +43,7 @@ async function init() {
     perf.tick();
     if (sm.bloom) {
       const phase    = document.body.getAttribute('data-phase') || 'hero';
-      const bloomMap = { hero: 0.25, transition: 0.5, detail: 0.8, cta: 0.3 };
+      const bloomMap = { hero: 0.5, transition: 1.0, detail: 1.5, cta: 0.7 };
       sm.bloom.strength += ((bloomMap[phase] || 0.55) - sm.bloom.strength) * 0.03;
     }
   };

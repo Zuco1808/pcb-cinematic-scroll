@@ -1,616 +1,790 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TRING | Complete Engineering — PCB Manufacturing</title>
-  <meta name="description" content="Upload your PCB files and get real-time pricing, DFM validation, and global manufacturing — all in one platform." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <meta name="description" content="Upload your PCB files and get real-time pricing, DFM validation, and global manufacturing — all in one platform."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
+    /* ── TRING COLOUR SYSTEM ──────────────────────────────── */
     :root {
-      --bg:        #ffffff;
-      --bg2:       #f0f7fd;
-      --bg3:       #e3f1fa;
-      --tring:     #5FABDB;
-      --tring-d:   #3d8ec2;
-      --tring-l:   #a8d4ef;
-      --dark:      #0f1923;
-      --dark2:     #1e2d3d;
-      --muted:     rgba(15,25,35,0.45);
-      --border:    rgba(95,171,219,0.18);
-      --border2:   rgba(15,25,35,0.08);
-      --mono:      'JetBrains Mono', monospace;
-      --sans:      'Inter', sans-serif;
+      /* Exact TRING palette */
+      --tring:        #5FABDB;   /* TRING blue — primary */
+      --tring-d:      #3d8ec2;   /* Darker blue */
+      --tring-l:      #8fcde8;   /* Lighter blue */
+      --tring-10:     rgba(95,171,219,0.10);
+      --tring-20:     rgba(95,171,219,0.20);
+
+      /* Background layers — dark navy like TRING */
+      --bg-900:       #0a0f1a;   /* Darkest — hero bg */
+      --bg-800:       #0f1629;   /* Cards bg */
+      --bg-700:       #141d35;   /* Hover states */
+      --bg-600:       #1a2540;   /* Border areas */
+
+      /* Text */
+      --text-100:     #ffffff;
+      --text-200:     #e2e8f0;
+      --text-400:     #94a3b8;
+      --text-600:     #475569;
+
+      /* Borders */
+      --border:       rgba(95,171,219,0.15);
+      --border-2:     rgba(255,255,255,0.06);
+
+      /* Fonts */
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--bg);
-      color: var(--dark);
       font-family: var(--sans);
+      background: var(--bg-900);
+      color: var(--text-200);
       overflow-x: hidden;
     }
 
-    /* ─── CANVAS ─── */
+    /* ── CANVAS ─────────────────────────────────────────────── */
     #canvas-container {
       position: fixed;
       inset: 0;
       z-index: 1;
     }
 
-    /* ─── LOADING ─── */
+    /* ── LOADING ─────────────────────────────────────────────── */
     #loading-screen {
       position: fixed;
       inset: 0;
-      z-index: 300;
-      background: var(--bg);
+      z-index: 500;
+      background: var(--bg-900);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2rem;
+      gap: 1.8rem;
     }
-    .loading-logo {
+    .load-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
       font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.5em;
-      color: var(--blue);
+      font-size: 0.8rem;
+      letter-spacing: 0.4em;
+      color: var(--tring);
       text-transform: uppercase;
     }
-    .loading-bar-wrap {
-      width: 200px;
-      height: 1px;
-      background: rgba(255,255,255,0.06);
-    }
-    #loading-bar {
-      height: 100%;
-      width: 0%;
+    .load-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
       background: var(--tring);
-      box-shadow: 0 0 10px var(--tring);
-      transition: width 0.25s ease;
+      box-shadow: 0 0 12px var(--tring);
+      animation: blink 1.4s ease-in-out infinite;
     }
-    #loading-pct {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: rgba(15,25,35,0.3);
-      letter-spacing: 0.2em;
-    }
+    @keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+    .load-bar-wrap { width: 180px; height: 1px; background: var(--border-2); }
+    #loading-bar   { height: 100%; width: 0%; background: var(--tring); box-shadow: 0 0 8px var(--tring); transition: width .2s; }
+    #loading-pct   { font-family: var(--mono); font-size: .65rem; color: var(--text-600); letter-spacing: .15em; }
 
-    /* ─── NAV ─── */
+    /* ── NAV ─────────────────────────────────────────────────── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 0 5vw;
-      height: 68px;
+      z-index: 200;
+      height: 64px;
+      padding: 0 6vw;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0) 100%);
-      backdrop-filter: blur(0px);
       border-bottom: 1px solid transparent;
-      transition: backdrop-filter 0.4s, border-color 0.4s, background 0.4s;
+      transition: background .3s, border-color .3s, backdrop-filter .3s;
     }
     nav.scrolled {
-      backdrop-filter: blur(20px);
-      border-color: var(--border2);
-      background: rgba(255,255,255,0.92);
+      background: rgba(10,15,26,.92);
+      backdrop-filter: blur(16px);
+      border-color: var(--border-2);
     }
+
     .nav-logo {
-      font-family: var(--mono);
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: #ffffff;
-      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
       text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text-100);
+      letter-spacing: .06em;
     }
-    .nav-logo-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
+    .nav-logo-mark {
+      width: 28px; height: 28px;
       background: var(--tring);
-      box-shadow: 0 0 8px var(--tring);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100%{ opacity:1; transform:scale(1); }
-      50%{ opacity:0.5; transform:scale(0.7); }
-    }
-    .nav-links {
+      border-radius: 6px;
       display: flex;
       align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .nav-center {
+      display: flex;
       gap: 2.5rem;
       list-style: none;
     }
-    .nav-links a {
-      font-size: 0.82rem;
-      color: var(--muted);
+    .nav-center a {
+      font-size: .82rem;
+      color: var(--text-400);
       text-decoration: none;
-      letter-spacing: 0.03em;
-      transition: color 0.2s;
+      transition: color .2s;
+      letter-spacing: .01em;
     }
-    .nav-links a:hover { color: var(--dark); }
-    .nav-cta {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.55rem 1.3rem;
-      border: 1px solid var(--tring);
-      color: var(--tring);
-      background: transparent;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-    }
-    .nav-cta:hover {
-      background: var(--tring);
-      color: #ffffff;
-      box-shadow: 0 0 20px rgba(95,171,219,0.4);
-    }
+    .nav-center a:hover { color: var(--text-100); }
 
-    /* ─── PAGE SECTIONS ─── */
-    #page-content {
+    .nav-right { display: flex; align-items: center; gap: .75rem; }
+    .btn-ghost {
+      font-size: .8rem;
+      color: var(--text-400);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: .45rem .9rem;
+      transition: color .2s;
+    }
+    .btn-ghost:hover { color: var(--text-100); }
+    .btn-nav-cta {
+      font-family: var(--mono);
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .5rem 1.2rem;
+      background: var(--tring);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background .2s, box-shadow .2s;
+    }
+    .btn-nav-cta:hover { background: var(--tring-d); box-shadow: 0 0 20px rgba(95,171,219,.35); }
+
+    /* ── MAIN LAYOUT ─────────────────────────────────────────── */
+    #page {
       position: relative;
       z-index: 10;
       pointer-events: none;
     }
-    #page-content a,
-    #page-content button,
-    #page-content input,
-    #page-content label {
-      pointer-events: all;
-    }
+    #page a, #page button, #page input, #page label,
+    #page select, #page textarea { pointer-events: all; }
 
-    /* ─── HERO ─── */
+    /* ── HERO ─────────────────────────────────────────────────── */
     .hero {
-      height: 100vh;
-      display: flex;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       align-items: center;
-      padding: 0 8vw;
-      padding-top: 68px;
+      gap: 4rem;
+      padding: 100px 6vw 60px;
     }
-    .hero-inner {
-      max-width: 620px;
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    .hero-badge {
+    .hero-left { opacity: 0; transform: translateY(28px); }
+
+    .badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: .5rem;
+      padding: .28rem .75rem;
+      border: 1px solid var(--border);
+      background: var(--tring-10);
+      border-radius: 100px;
       font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.3em;
+      font-size: .62rem;
+      color: var(--tring-l);
+      letter-spacing: .12em;
       text-transform: uppercase;
-      color: var(--blue);
-      border: 1px solid rgba(95,171,219,0.35);
-      padding: 0.35rem 0.8rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.8rem;
     }
-    .hero-badge-dot {
+    .badge-pulse {
       width: 5px; height: 5px;
       border-radius: 50%;
       background: var(--tring);
-      animation: pulse 1.5s ease-in-out infinite;
+      animation: blink 1.6s ease-in-out infinite;
     }
+
     .hero h1 {
-      font-size: clamp(2.8rem, 5.5vw, 5rem);
-      font-weight: 700;
-      line-height: 1.0;
-      letter-spacing: -0.03em;
-      margin-bottom: 1.5rem;
-      color: var(--white);
+      font-size: clamp(2.6rem, 4.5vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      color: var(--text-100);
+      margin-bottom: 1.4rem;
     }
-    .hero h1 span {
-      background: linear-gradient(135deg, var(--tring), var(--dark));
+    .hero h1 .accent {
+      background: linear-gradient(90deg, var(--tring) 0%, var(--tring-l) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+
     .hero p {
-      font-size: 1.05rem;
-      color: var(--muted);
+      font-size: 1rem;
+      color: var(--text-400);
       line-height: 1.75;
-      max-width: 480px;
-      margin-bottom: 2.5rem;
+      max-width: 440px;
+      margin-bottom: 2.2rem;
     }
-    .hero-btns {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+
+    .hero-btns { display: flex; gap: .75rem; flex-wrap: wrap; }
     .btn-primary {
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.85rem 2rem;
+      gap: .5rem;
+      padding: .78rem 1.8rem;
       background: var(--tring);
-      color: #ffffff;
+      color: #fff;
       font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
+      font-size: .74rem;
+      font-weight: 500;
+      letter-spacing: .1em;
       text-transform: uppercase;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
       text-decoration: none;
-      transition: box-shadow 0.2s, transform 0.2s;
-      font-weight: 500;
+      transition: background .2s, box-shadow .2s, transform .15s;
     }
     .btn-primary:hover {
-      box-shadow: 0 0 30px rgba(95,171,219,0.45);
+      background: var(--tring-d);
+      box-shadow: 0 4px 24px rgba(95,171,219,.35);
       transform: translateY(-1px);
     }
-    .btn-secondary {
+    .btn-outline {
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.85rem 1.8rem;
-      border: 1px solid rgba(15,25,35,0.15);
-      color: var(--muted);
+      gap: .5rem;
+      padding: .78rem 1.6rem;
+      background: transparent;
+      color: var(--text-200);
       font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
+      font-size: .74rem;
+      font-weight: 500;
+      letter-spacing: .1em;
       text-transform: uppercase;
+      border: 1px solid var(--border-2);
+      border-radius: 5px;
       cursor: pointer;
       text-decoration: none;
-      background: transparent;
-      transition: border-color 0.2s, color 0.2s;
+      transition: border-color .2s, color .2s;
     }
-    .btn-secondary:hover { border-color: var(--tring); color: var(--tring); }
+    .btn-outline:hover { border-color: var(--tring); color: var(--tring); }
 
-    /* Hero stats */
-    .hero-stats {
+    /* Trust badges */
+    .trust-row {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .trust-badge {
+      font-size: .72rem;
+      color: var(--text-400);
+      background: var(--bg-800);
+      border: 1px solid var(--border-2);
+      border-radius: 4px;
+      padding: .28rem .65rem;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .trust-badge::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--tring);
+      flex-shrink: 0;
+    }
+
+    /* Hero right — upload card */
+    .hero-right { opacity: 0; transform: translateY(28px); }
+    .upload-card {
+      background: var(--bg-800);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .upload-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--tring), transparent);
+    }
+    .upload-zone {
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      margin-bottom: 1.2rem;
+    }
+    .upload-zone:hover { border-color: var(--tring); background: var(--tring-10); }
+    .upload-icon-wrap {
+      width: 48px; height: 48px;
+      background: var(--tring-10);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .upload-icon-wrap svg { color: var(--tring); }
+    .upload-zone h4 { font-size: .9rem; font-weight: 600; color: var(--text-100); margin-bottom: .35rem; }
+    .upload-zone p  { font-size: .75rem; color: var(--text-600); }
+    .upload-chips {
+      display: flex;
+      gap: .5rem;
+      justify-content: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .chip {
+      font-family: var(--mono);
+      font-size: .58rem;
+      color: var(--tring);
+      background: var(--tring-10);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: .2rem .5rem;
+      letter-spacing: .08em;
+    }
+    .upload-btn-row { display: flex; gap: .6rem; }
+    .upload-btn-row .btn-primary { flex: 1; justify-content: center; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border-2);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 1.2rem;
+    }
+    .stat-cell {
+      background: var(--bg-800);
+      padding: 1rem 1.2rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-family: var(--mono);
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-100);
+      letter-spacing: -.02em;
+    }
+    .stat-num span { color: var(--tring); }
+    .stat-lbl { font-size: .68rem; color: var(--text-600); margin-top: .15rem; line-height: 1.4; }
+
+    /* Trusted logos */
+    .trusted-strip {
+      padding: 1.5rem 6vw;
+      border-top: 1px solid var(--border-2);
+      border-bottom: 1px solid var(--border-2);
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      overflow: hidden;
+    }
+    .trusted-strip-label {
+      font-size: .68rem;
+      color: var(--text-600);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      font-family: var(--mono);
+    }
+    .trusted-logos {
       display: flex;
       gap: 3rem;
-      margin-top: 3.5rem;
-      padding-top: 2.5rem;
-      border-top: 1px solid var(--border2);
+      align-items: center;
     }
-    .stat-item {}
-    .stat-val {
-      font-family: var(--mono);
-      font-size: 1.6rem;
-      font-weight: 500;
-      color: var(--dark);
-      letter-spacing: -0.02em;
+    .trusted-logos span {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text-600);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      transition: color .2s;
     }
-    .stat-val span { color: var(--tring); }
-    .stat-label {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 0.2rem;
-      letter-spacing: 0.05em;
-    }
+    .trusted-logos span:hover { color: var(--text-200); }
 
-    /* ─── SECTION BASE ─── */
-    .section {
+    /* ── SECTION BASE ────────────────────────────────────────── */
+    section.s {
+      padding: 100px 6vw;
       min-height: 100vh;
-      padding: 120px 8vw;
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
-    .section-label {
+    .s-eyebrow {
       font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.4em;
-      color: var(--tring);
+      font-size: .62rem;
+      letter-spacing: .35em;
       text-transform: uppercase;
-      margin-bottom: 1.2rem;
+      color: var(--tring);
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: .7rem;
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(16px);
     }
-    .section-label::after {
-      content: '';
-      display: block;
-      flex: 1;
-      max-width: 60px;
-      height: 1px;
-      background: rgba(95,171,219,0.4);
+    .s-eyebrow-line {
+      width: 32px; height: 1px;
+      background: var(--tring);
+      opacity: .5;
     }
-    .section h2 {
-      font-size: clamp(2rem, 4vw, 3.4rem);
-      font-weight: 700;
-      letter-spacing: -0.025em;
-      line-height: 1.05;
-      margin-bottom: 1.2rem;
+    .s-title {
+      font-size: clamp(1.9rem, 3.5vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -.025em;
+      line-height: 1.08;
+      color: var(--text-100);
+      margin-bottom: 1rem;
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(16px);
     }
-    .section-sub {
-      font-size: 1rem;
-      color: var(--muted);
-      line-height: 1.7;
-      max-width: 520px;
-      margin-bottom: 4rem;
+    .s-sub {
+      font-size: .95rem;
+      color: var(--text-400);
+      line-height: 1.75;
+      max-width: 500px;
+      margin-bottom: 3.5rem;
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(16px);
     }
 
-    /* ─── TRANSITION SECTION ─── */
-    .section--process {
-      align-items: flex-end;
-      text-align: right;
-    }
-    .section--process .section-label { justify-content: flex-end; }
-    .section--process .section-label::after { display: none; }
-    .section--process .section-label::before {
-      content: '';
-      display: block;
-      width: 60px;
-      height: 1px;
-      background: rgba(95,171,219,0.4);
-    }
-    .section--process .section-sub { margin-left: auto; text-align: right; }
+    /* ── PROCESS SECTION ─────────────────────────────────────── */
+    .s-process { flex-direction: row; gap: 6rem; align-items: center; }
+    .s-process-left { flex: 1; }
+    .s-process-right { flex: 1; }
 
-    /* Process steps */
-    .process-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      max-width: 480px;
-      margin-left: auto;
-    }
+    .process-steps { display: flex; flex-direction: column; gap: 0; }
     .process-step {
       display: flex;
-      align-items: flex-start;
       gap: 1.5rem;
-      padding: 1.5rem;
-      border: 1px solid var(--border2);
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 20px rgba(15,25,35,0.06);
+      padding: 1.6rem 0;
+      border-bottom: 1px solid var(--border-2);
       opacity: 0;
-      transform: translateX(30px);
-      transition: border-color 0.3s;
+      transform: translateX(24px);
+      transition: opacity .4s, transform .4s;
     }
-    .process-step:hover { border-color: var(--tring); box-shadow: 0 4px 30px rgba(95,171,219,0.15); }
-    .step-num {
+    .process-step:last-child { border-bottom: none; }
+    .ps-num {
       font-family: var(--mono);
-      font-size: 0.65rem;
+      font-size: .62rem;
       color: var(--tring);
-      letter-spacing: 0.1em;
-      min-width: 28px;
-      padding-top: 0.1rem;
+      letter-spacing: .1em;
+      min-width: 24px;
+      padding-top: .15rem;
     }
-    .step-content h4 {
-      font-size: 0.9rem;
+    .ps-body h4 {
+      font-size: .88rem;
       font-weight: 600;
-      margin-bottom: 0.4rem;
-      color: var(--dark);
+      color: var(--text-100);
+      margin-bottom: .3rem;
     }
-    .step-content p {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.6;
+    .ps-body p { font-size: .78rem; color: var(--text-400); line-height: 1.6; }
+    .ps-tags {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+      margin-top: .6rem;
     }
-    .step-tag {
+    .ps-tag {
       font-family: var(--mono);
-      font-size: 0.6rem;
-      color: var(--tring-d);
-      letter-spacing: 0.1em;
-      margin-top: 0.5rem;
+      font-size: .58rem;
+      color: var(--text-600);
+      background: var(--bg-700);
+      border: 1px solid var(--border-2);
+      border-radius: 3px;
+      padding: .15rem .45rem;
     }
 
-    /* ─── DETAIL SECTION ─── */
-    .section--detail {
-      justify-content: flex-end;
-      padding-bottom: 80px;
+    /* Process visual */
+    .process-visual {
+      background: var(--bg-800);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(24px);
     }
-    .features-grid {
+    .process-visual::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--tring), transparent);
+    }
+    .pv-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .pv-title { font-size: .78rem; font-weight: 600; color: var(--text-100); }
+    .pv-badge {
+      font-family: var(--mono);
+      font-size: .58rem;
+      color: var(--tring);
+      background: var(--tring-10);
+      border: 1px solid var(--border);
+      padding: .18rem .5rem;
+      border-radius: 3px;
+      letter-spacing: .08em;
+    }
+    .pv-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem;
+      border-radius: 6px;
+      margin-bottom: .5rem;
+      border: 1px solid transparent;
+      transition: background .2s, border-color .2s;
+      cursor: default;
+    }
+    .pv-row:hover { background: var(--bg-700); border-color: var(--border-2); }
+    .pv-row-icon {
+      width: 32px; height: 32px;
+      background: var(--tring-10);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pv-row-label { font-size: .8rem; color: var(--text-200); flex: 1; }
+    .pv-row-val {
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: var(--tring);
+    }
+    .pv-divider { height: 1px; background: var(--border-2); margin: 1rem 0; }
+    .pv-result {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: var(--tring-10);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .pv-result-label { font-size: .78rem; color: var(--text-200); }
+    .pv-result-price {
+      font-family: var(--mono);
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--tring);
+    }
+
+    /* ── CAPABILITIES SECTION ──────────────────────────────── */
+    .s-caps { }
+    .caps-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .caps-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1px;
-      background: var(--border2);
-      border: 1px solid var(--border);
+      background: var(--border-2);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      overflow: hidden;
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(24px);
     }
-    .feature-card {
-      background: #ffffff;
+    .cap-card {
+      background: var(--bg-800);
       padding: 2rem 1.8rem;
-      transition: background 0.3s, box-shadow 0.3s;
+      transition: background .25s;
+      cursor: default;
+      position: relative;
     }
-    .feature-card:hover { background: var(--bg2); box-shadow: inset 0 0 0 1px var(--tring); }
-    .feature-icon {
+    .cap-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--tring);
+      transform: scaleX(0);
+      transition: transform .3s;
+    }
+    .cap-card:hover { background: var(--bg-700); }
+    .cap-card:hover::after { transform: scaleX(1); }
+    .cap-eyebrow {
       font-family: var(--mono);
-      font-size: 0.65rem;
+      font-size: .6rem;
+      letter-spacing: .2em;
       color: var(--tring);
-      letter-spacing: 0.2em;
-      margin-bottom: 1.2rem;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: .5rem;
     }
-    .feature-icon::before {
-      content: '';
-      display: block;
-      width: 20px; height: 1px;
-      background: var(--tring);
-    }
-    .feature-card h4 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.6rem;
-      color: var(--dark);
-    }
-    .feature-card p {
-      font-size: 0.78rem;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-    .feature-metric {
+    .cap-eyebrow::before { content:''; width:16px; height:1px; background:var(--tring); opacity:.5; }
+    .cap-card h4 { font-size: .9rem; font-weight: 600; color: var(--text-100); margin-bottom: .5rem; }
+    .cap-card p  { font-size: .78rem; color: var(--text-400); line-height: 1.65; }
+    .cap-metric  {
       font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--tring-d);
-      margin-top: 1rem;
-      letter-spacing: 0.05em;
+      font-size: .68rem;
+      color: var(--tring);
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-2);
     }
 
-    /* ─── CTA SECTION ─── */
-    .section--cta {
+    /* ── CTA SECTION ─────────────────────────────────────────── */
+    .s-cta {
       align-items: center;
       text-align: center;
-      min-height: 100vh;
+      background: var(--bg-800);
+      border-top: 1px solid var(--border-2);
+      border-bottom: 1px solid var(--border-2);
     }
-    .section--cta h2 { max-width: 640px; }
-    .section--cta .section-sub { max-width: 440px; margin-left: auto; margin-right: auto; }
+    .s-cta .s-title, .s-cta .s-sub { margin-left: auto; margin-right: auto; }
+    .s-cta .s-sub { max-width: 420px; }
 
-    /* Upload box */
-    .upload-box {
+    .cta-upload-box {
       width: 100%;
-      max-width: 520px;
-      border: 1px dashed rgba(95,171,219,0.4);
-      padding: 2.5rem;
-      background: rgba(255,255,255,0.9);
-      backdrop-filter: blur(20px);
-      box-shadow: 0 4px 40px rgba(95,171,219,0.1);
-      margin-bottom: 2rem;
-      cursor: pointer;
-      transition: border-color 0.3s, background 0.3s;
+      max-width: 540px;
+      background: var(--bg-900);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.2rem;
+      margin: 0 auto 2rem;
       opacity: 0;
       transform: translateY(20px);
+      cursor: pointer;
+      transition: border-color .2s;
     }
-    .upload-box:hover {
-      border-color: var(--tring);
-      background: rgba(240,247,253,0.95);
-    }
-    .upload-icon {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.3em;
-      color: var(--tring);
-      margin-bottom: 0.8rem;
-    }
-    .upload-title {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--dark);
-      margin-bottom: 0.4rem;
-    }
-    .upload-sub {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 1.5rem;
-    }
-    .upload-tags {
-      display: flex;
-      justify-content: center;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-    .upload-tag {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      color: var(--tring);
-      border: 1px solid rgba(95,171,219,0.3);
-      padding: 0.2rem 0.6rem;
-      background: rgba(95,171,219,0.06);
-      letter-spacing: 0.1em;
-    }
+    .cta-upload-box:hover { border-color: var(--tring); }
+    .cta-upload-box .upload-icon-wrap { margin: 0 auto .8rem; }
+    .cta-upload-box h4 { font-size: .9rem; font-weight: 600; color: var(--text-100); margin-bottom: .3rem; }
+    .cta-upload-box p  { font-size: .75rem; color: var(--text-600); margin-bottom: 1.2rem; }
 
-    /* Certifications */
-    .cert-row {
+    .cta-btns { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+
+    .cert-strip {
       display: flex;
-      gap: 2rem;
+      gap: 1rem;
       justify-content: center;
+      flex-wrap: wrap;
       margin-top: 3rem;
       opacity: 0;
-      flex-wrap: wrap;
     }
     .cert-item {
       font-family: var(--mono);
-      font-size: 0.62rem;
-      color: rgba(15,25,35,0.35);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      border: 1px solid var(--border2);
-      padding: 0.35rem 0.75rem;
+      font-size: .6rem;
+      color: var(--text-600);
+      background: var(--bg-900);
+      border: 1px solid var(--border-2);
+      border-radius: 4px;
+      padding: .3rem .7rem;
+      letter-spacing: .1em;
     }
 
-    /* ─── FOOTER ─── */
+    /* ── FOOTER ──────────────────────────────────────────────── */
     footer {
       position: relative;
       z-index: 10;
       pointer-events: all;
-      border-top: 1px solid var(--border2);
-      padding: 4rem 8vw 2rem;
-      background: rgba(4,10,18,0.95);
-      backdrop-filter: blur(20px);
+      background: var(--bg-800);
+      border-top: 1px solid var(--border-2);
+      padding: 4rem 6vw 2rem;
     }
-    .footer-grid {
+    .footer-top {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
       gap: 3rem;
-      margin-bottom: 3rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid var(--border-2);
     }
-    .footer-brand p {
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.45);
+    .footer-brand-desc {
+      font-size: .78rem;
+      color: var(--text-600);
       line-height: 1.7;
-      margin-top: 1rem;
-      max-width: 240px;
+      margin-top: .8rem;
+      max-width: 220px;
+    }
+    .footer-certs {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-top: 1.2rem;
+    }
+    .footer-cert-badge {
+      font-family: var(--mono);
+      font-size: .55rem;
+      color: var(--text-600);
+      border: 1px solid var(--border-2);
+      border-radius: 3px;
+      padding: .18rem .45rem;
+      letter-spacing: .07em;
     }
     .footer-col h5 {
       font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
+      font-size: .62rem;
+      letter-spacing: .2em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
+      color: var(--text-400);
       margin-bottom: 1.2rem;
     }
     .footer-col ul { list-style: none; }
-    .footer-col ul li { margin-bottom: 0.7rem; }
-    .footer-col ul li a {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.35);
+    .footer-col li { margin-bottom: .65rem; }
+    .footer-col a {
+      font-size: .78rem;
+      color: var(--text-600);
       text-decoration: none;
-      transition: color 0.2s;
+      transition: color .2s;
     }
-    .footer-col ul li a:hover { color: #ffffff; }
+    .footer-col a:hover { color: var(--text-200); }
     .footer-bottom {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       padding-top: 2rem;
-      border-top: 1px solid var(--border2);
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: .75rem;
     }
-    .footer-bottom p {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.2);
-    }
-    .footer-legal {
-      display: flex;
-      gap: 1.5rem;
-    }
-    .footer-legal a {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.2);
-      text-decoration: none;
-    }
-    .footer-legal a:hover { color: var(--muted); }
+    .footer-bottom p { font-size: .72rem; color: var(--text-600); }
+    .footer-legal { display: flex; gap: 1.5rem; }
+    .footer-legal a { font-size: .72rem; color: var(--text-600); text-decoration: none; }
+    .footer-legal a:hover { color: var(--text-200); }
 
-    /* ─── SCROLL SECTIONS WRAPPER ─── */
-    #scroll-sections {
-      position: relative;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    /* ─── SCROLL INDICATOR ─── */
+    /* ── UI OVERLAYS ─────────────────────────────────────────── */
     #scroll-hint {
       position: fixed;
       bottom: 2.5rem;
@@ -620,320 +794,384 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
+      gap: .5rem;
+      pointer-events: none;
     }
     #scroll-hint span {
       font-family: var(--mono);
-      font-size: 0.58rem;
-      color: rgba(15,25,35,0.25);
-      letter-spacing: 0.35em;
+      font-size: .58rem;
+      color: rgba(255,255,255,.18);
+      letter-spacing: .3em;
     }
     .scroll-line {
-      width: 1px;
-      height: 36px;
+      width: 1px; height: 34px;
       background: linear-gradient(to bottom, var(--tring), transparent);
-      animation: scrollPulse 1.8s ease-in-out infinite;
+      animation: spulse 1.8s ease-in-out infinite;
     }
-    @keyframes scrollPulse {
-      0%,100%{ opacity:0.25; transform:scaleY(0.8); }
-      50%{ opacity:1; transform:scaleY(1.2); }
-    }
+    @keyframes spulse{0%,100%{opacity:.2;transform:scaleY(.8)}50%{opacity:1;transform:scaleY(1.1)}}
 
-    /* ─── PHASE INDICATOR ─── */
     #phase-dots {
       position: fixed;
-      right: 2rem;
+      right: 1.8rem;
       top: 50%;
       transform: translateY(-50%);
       z-index: 20;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: .55rem;
     }
-    .phase-dot {
+    .pdot {
       width: 4px; height: 4px;
       border-radius: 50%;
-      background: rgba(95,171,219,0.25);
-      transition: background 0.4s, transform 0.4s;
+      background: rgba(255,255,255,.15);
+      transition: background .4s, transform .4s;
     }
-    .phase-dot.active {
+    .pdot.active {
       background: var(--tring);
       transform: scale(2);
-      box-shadow: 0 0 6px var(--blue);
+      box-shadow: 0 0 6px var(--tring);
     }
 
-    /* ─── MUTE ─── */
     #mute-btn {
       position: fixed;
-      bottom: 2rem;
-      right: 2rem;
+      bottom: 1.8rem;
+      right: 1.8rem;
       z-index: 50;
-      width: 40px; height: 40px;
-      border: 1px solid var(--border2);
+      width: 38px; height: 38px;
+      border: 1px solid var(--border-2);
       border-radius: 50%;
-      background: rgba(255,255,255,0.85);
+      background: rgba(10,15,26,.7);
       backdrop-filter: blur(12px);
-      color: rgba(15,25,35,0.4);
+      color: var(--text-600);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: border-color 0.3s, color 0.3s;
+      transition: border-color .2s, color .2s;
     }
     #mute-btn:hover { border-color: var(--tring); color: var(--tring); }
-    #mute-btn.muted { opacity: 0.4; }
+    #mute-btn.muted { opacity: .35; }
 
-    /* ─── TRUSTED LOGOS ─── */
-    .trusted-row {
-      display: flex;
-      align-items: center;
-      gap: 2.5rem;
-      margin-top: 1.5rem;
-      flex-wrap: wrap;
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media(max-width:900px){
+      .hero { grid-template-columns:1fr; }
+      .hero-right { display:none; }
+      .stats-row { grid-template-columns:repeat(2,1fr); }
+      .s-process { flex-direction:column; }
+      .caps-grid { grid-template-columns:1fr; }
+      .footer-top { grid-template-columns:1fr 1fr; }
+      .nav-center { display:none; }
     }
-    .trusted-label {
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      color: rgba(15,25,35,0.3);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .trusted-logos {
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .trusted-logos span {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: rgba(15,25,35,0.25);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
-    .trusted-logos span:hover { color: var(--tring); }
-
-    /* ─── MOBILE ─── */
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .features-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
-      .hero-stats { gap: 1.5rem; }
-      .process-steps { max-width: 100%; }
-      .section--process { align-items: flex-start; text-align: left; }
-      .section--process .section-sub { margin-left: 0; text-align: left; }
-      .section--process .section-label { justify-content: flex-start; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .scroll-line { animation: none; }
-      .nav-logo-dot { animation: none; }
+    @media(prefers-reduced-motion:reduce){
+      .scroll-line,.load-dot,.badge-pulse,.blink{animation:none}
     }
   </style>
 </head>
 <body>
 
-<!-- Loading -->
+<!-- ── LOADING ───────────────────────────────────────────── -->
 <div id="loading-screen">
-  <p class="loading-logo">TRING Engineering</p>
-  <div class="loading-bar-wrap"><div id="loading-bar"></div></div>
+  <div class="load-logo"><span class="load-dot"></span> TRING</div>
+  <div class="load-bar-wrap"><div id="loading-bar"></div></div>
   <span id="loading-pct">0%</span>
 </div>
 
-<!-- Canvas -->
-<div id="canvas-container" role="img" aria-label="3D PCB animation"></div>
+<!-- ── CANVAS ────────────────────────────────────────────── -->
+<div id="canvas-container" role="img" aria-label="3D PCB cinematic animation"></div>
 
-<!-- Navigation -->
+<!-- ── NAV ──────────────────────────────────────────────── -->
 <nav id="main-nav">
   <a href="#" class="nav-logo">
-    <span class="nav-logo-dot"></span>
+    <div class="nav-logo-mark">T</div>
     TRING
   </a>
-  <ul class="nav-links">
+  <ul class="nav-center">
     <li><a href="#process">Process</a></li>
     <li><a href="#capabilities">Capabilities</a></li>
     <li><a href="#assembly">Assembly</a></li>
     <li><a href="#about">About</a></li>
-    <li><a href="#contact" class="nav-cta">Get Quote</a></li>
   </ul>
+  <div class="nav-right">
+    <button class="btn-ghost">Log in</button>
+    <a href="#cta" class="btn-nav-cta">Get Instant Quote</a>
+  </div>
 </nav>
 
-<!-- Scroll Sections -->
+<!-- ── PAGE ──────────────────────────────────────────────── -->
+<div id="page">
 <div id="scroll-sections">
 
-  <!-- HERO -->
-  <section class="section hero" id="s-hero">
-    <div class="hero-inner">
-      <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        ISO 9001 Certified · Global Manufacturing
-      </div>
-      <h1>From Design<br>to <span>Production</span><br>— Instantly.</h1>
-      <p>Upload your PCB files and get real-time pricing, DFM validation, and global manufacturing — all in one platform. Trusted by engineers worldwide.</p>
-      <div class="hero-btns">
-        <a href="#" class="btn-primary">
-          Upload Gerber
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </a>
-        <a href="#capabilities" class="btn-secondary">
-          View Capabilities
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-      <div class="hero-stats">
-        <div class="stat-item">
-          <div class="stat-val">2M<span>+</span></div>
-          <div class="stat-label">PCBs Manufactured</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">&lt;<span>2s</span></div>
-          <div class="stat-label">Quote Generation</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">99.8<span>%</span></div>
-          <div class="stat-label">On-Time Delivery</div>
-        </div>
-      </div>
-      <div class="trusted-row">
-        <span class="trusted-label">Trusted by</span>
-        <div class="trusted-logos">
-          <span>Siemens</span>
-          <span>Bosch</span>
-          <span>Arduino</span>
-          <span>SparkFun</span>
-        </div>
-      </div>
+<!-- HERO -->
+<section class="hero" id="s-hero">
+  <div class="hero-left">
+    <div class="badge"><span class="badge-pulse"></span>Instant Quotes in Under 2 Seconds</div>
+    <h1>From Design<br>to <span class="accent">Production</span><br>— Instantly.</h1>
+    <p>Upload your PCB files and get real-time pricing, DFM validation, and global manufacturing — all in one platform.</p>
+    <div class="hero-btns">
+      <a href="#cta" class="btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Your Gerber
+      </a>
+      <a href="#capabilities" class="btn-outline">View Capabilities</a>
     </div>
-  </section>
+    <div class="trust-row">
+      <span class="trust-badge">ISO 9001 Certified</span>
+      <span class="trust-badge">Global Shipping</span>
+      <span class="trust-badge">24h Fast-Track</span>
+    </div>
+  </div>
 
-  <!-- PROCESS -->
-  <section class="section section--process" id="s-trans" style="min-height:100vh">
-    <div class="section-label">Process — 02</div>
-    <h2>From upload<br>to delivery<br>in 4 steps</h2>
-    <p class="section-sub">Our streamlined workflow gets your PCBs manufactured and delivered with maximum efficiency and precision.</p>
-    <div class="process-steps">
-      <div class="process-step">
-        <span class="step-num">01</span>
-        <div class="step-content">
-          <h4>Upload Your Design</h4>
-          <p>Drag and drop your Gerber ZIP. Auto-detect layers, dimensions, via counts.</p>
-          <div class="step-tag">Gerber RS-274X · ODB++ · IPC-2581</div>
+  <div class="hero-right">
+    <div class="upload-card">
+      <div class="upload-zone" id="upload-zone">
+        <div class="upload-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <h4>Drop your Gerber files here</h4>
+        <p>Supports .zip, .rar, .gbr formats</p>
+        <div class="upload-chips">
+          <span class="chip">AUTO-DETECT</span>
+          <span class="chip">DFM CHECK</span>
+          <span class="chip">3D PREVIEW</span>
+          <span class="chip">SECURE</span>
         </div>
       </div>
-      <div class="process-step">
-        <span class="step-num">02</span>
-        <div class="step-content">
-          <h4>Configure Options</h4>
-          <p>Select material, thickness, copper weight, surface finish. Real-time pricing.</p>
-          <div class="step-tag">FR-4 · Rogers · Flex · 1–32 layers</div>
-        </div>
+      <div class="upload-btn-row">
+        <a href="#" class="btn-primary">Upload Files</a>
+        <a href="#" class="btn-outline">Browse</a>
       </div>
-      <div class="process-step">
-        <span class="step-num">03</span>
-        <div class="step-content">
-          <h4>DFM Validation</h4>
-          <p>Automated Design for Manufacturing checks before production starts.</p>
-          <div class="step-tag">99.2% first-pass yield</div>
+      <div class="stats-row">
+        <div class="stat-cell">
+          <div class="stat-num">2M<span>+</span></div>
+          <div class="stat-lbl">PCBs Manufactured</div>
         </div>
-      </div>
-      <div class="process-step">
-        <span class="step-num">04</span>
-        <div class="step-content">
-          <h4>Track & Receive</h4>
-          <p>Real-time order tracking through CAM, fabrication, QA, and shipping.</p>
-          <div class="step-tag">DHL · FedEx · 24h fast-track</div>
+        <div class="stat-cell">
+          <div class="stat-num">&lt;<span>2s</span></div>
+          <div class="stat-lbl">Quote Generation</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num">660<span>K</span></div>
+          <div class="stat-lbl">Components</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num">99.8<span>%</span></div>
+          <div class="stat-lbl">On-Time Delivery</div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- CAPABILITIES -->
-  <section class="section section--detail" id="s-detail">
-    <div class="section-label">Capabilities — 03</div>
-    <h2>Everything you<br>need for PCB<br>manufacturing</h2>
-    <p class="section-sub">From rapid prototyping to volume production — complete engineering solutions on one platform.</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">ASSEMBLY</div>
-        <h4>SMD & Through-Hole</h4>
-        <p>State-of-the-art pick &amp; place technology. 0201 components minimum.</p>
-        <div class="feature-metric">0.4mm pitch capability</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">INSPECTION</div>
-        <h4>Automated Optical</h4>
-        <p>AOI inspection on every board. Electrical testing and visual QC before shipping.</p>
-        <div class="feature-metric">ISO 9001 certified</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">COMPONENTS</div>
-        <h4>660K+ Components</h4>
-        <p>Full turnkey with global component sourcing. Upload your BOM, instant availability.</p>
-        <div class="feature-metric">660,000+ in database</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">SPEED</div>
-        <h4>24h Fast-Track</h4>
-        <p>Dedicated production lines for urgent orders. Prototype to production in 24 hours.</p>
-        <div class="feature-metric">Same-day dispatch available</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">MATERIALS</div>
-        <h4>Advanced Substrates</h4>
-        <p>FR-4, Rogers, flexible, rigid-flex, metal core. Up to 32 layers.</p>
-        <div class="feature-metric">ENIG · HASL · OSP · Immersion Ag</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">ENGINEERING</div>
-        <h4>Expert Review</h4>
-        <p>PCB layout review, DFM optimization, design consultation from senior engineers.</p>
-        <div class="feature-metric">24/7 engineering support</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="section section--cta" id="s-cta">
-    <div class="section-label" style="justify-content:center">Get Started — 04</div>
-    <h2>Ready to start<br>your next project?</h2>
-    <p class="section-sub">Get your instant quote in under 2 seconds. No minimum order. Free DFM check.</p>
-    <div class="upload-box" id="upload-box">
-      <div class="upload-icon">[ GERBER UPLOAD ]</div>
-      <div class="upload-title">Drop your Gerber files here</div>
-      <div class="upload-sub">or click to browse · Supports .zip .rar .gbr</div>
-      <div class="upload-tags">
-        <span class="upload-tag">AUTO-DETECT</span>
-        <span class="upload-tag">DFM CHECK</span>
-        <span class="upload-tag">3D PREVIEW</span>
-        <span class="upload-tag">SECURE</span>
-      </div>
-    </div>
-    <div class="hero-btns" style="justify-content:center">
-      <a href="#" class="btn-primary">Get Instant Quote</a>
-      <a href="#contact" class="btn-secondary">Contact Sales</a>
-    </div>
-    <div class="cert-row" id="cert-row">
-      <span class="cert-item">ISO 9001:2015</span>
-      <span class="cert-item">ISO 14001</span>
-      <span class="cert-item">IATF 16949</span>
-      <span class="cert-item">UL Listed</span>
-      <span class="cert-item">Global Shipping</span>
-      <span class="cert-item">No Min Order</span>
-    </div>
-  </section>
-
+<!-- TRUSTED STRIP -->
+<div class="trusted-strip">
+  <span class="trusted-strip-label">Trusted by engineers at</span>
+  <div class="trusted-logos">
+    <span>Siemens</span>
+    <span>Bosch</span>
+    <span>Raspberry Pi</span>
+    <span>Arduino</span>
+    <span>SparkFun</span>
+  </div>
 </div>
 
-<!-- Footer -->
+<!-- PROCESS -->
+<section class="s s-process" id="s-trans">
+  <div class="s-process-left">
+    <div class="s-eyebrow"><span class="s-eyebrow-line"></span>How It Works</div>
+    <h2 class="s-title">From upload to<br>delivery in 4<br>simple steps</h2>
+    <p class="s-sub">Our streamlined process gets your PCBs manufactured and delivered with maximum efficiency.</p>
+    <div class="process-steps">
+      <div class="process-step">
+        <span class="ps-num">01</span>
+        <div class="ps-body">
+          <h4>Upload Your Design</h4>
+          <p>Drag and drop your Gerber ZIP file. Auto-detect layers, board dimensions, and via counts.</p>
+          <div class="ps-tags">
+            <span class="ps-tag">Gerber RS-274X</span>
+            <span class="ps-tag">ODB++</span>
+            <span class="ps-tag">IPC-2581</span>
+          </div>
+        </div>
+      </div>
+      <div class="process-step">
+        <span class="ps-num">02</span>
+        <div class="ps-body">
+          <h4>Configure Options</h4>
+          <p>Select material, thickness, copper weight, surface finish, and quantity. Watch the price update in real-time.</p>
+          <div class="ps-tags">
+            <span class="ps-tag">FR-4</span><span class="ps-tag">Rogers</span>
+            <span class="ps-tag">Flex</span><span class="ps-tag">1–32 layers</span>
+          </div>
+        </div>
+      </div>
+      <div class="process-step">
+        <span class="ps-num">03</span>
+        <div class="ps-body">
+          <h4>Review &amp; Order</h4>
+          <p>DFM validation runs automatically. Review warnings, approve the design, and complete checkout securely.</p>
+          <div class="ps-tags">
+            <span class="ps-tag">Auto DFM</span><span class="ps-tag">Secure payment</span>
+          </div>
+        </div>
+      </div>
+      <div class="process-step">
+        <span class="ps-num">04</span>
+        <div class="ps-body">
+          <h4>Track Production</h4>
+          <p>Monitor your order through CAM, fabrication, QA, and shipping. Real-time updates at every stage.</p>
+          <div class="ps-tags">
+            <span class="ps-tag">Real-time tracking</span><span class="ps-tag">DHL/FedEx</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-process-right">
+    <div class="process-visual" id="process-visual">
+      <div class="pv-header">
+        <span class="pv-title">Instant Quote Engine</span>
+        <span class="pv-badge">LIVE</span>
+      </div>
+      <div class="pv-row">
+        <div class="pv-row-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <span class="pv-row-label">Board Size</span>
+        <span class="pv-row-val">100 × 80 mm</span>
+      </div>
+      <div class="pv-row">
+        <div class="pv-row-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <span class="pv-row-label">Layers</span>
+        <span class="pv-row-val">4 layers</span>
+      </div>
+      <div class="pv-row">
+        <div class="pv-row-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <span class="pv-row-label">Turnaround</span>
+        <span class="pv-row-val">5 days</span>
+      </div>
+      <div class="pv-row">
+        <div class="pv-row-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="1"/></svg>
+        </div>
+        <span class="pv-row-label">Surface Finish</span>
+        <span class="pv-row-val">ENIG</span>
+      </div>
+      <div class="pv-divider"></div>
+      <div class="pv-result">
+        <span class="pv-result-label">Estimated Price (10 pcs)</span>
+        <span class="pv-result-price">$48.20</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section class="s s-caps" id="s-detail">
+  <div class="caps-header">
+    <div>
+      <div class="s-eyebrow"><span class="s-eyebrow-line"></span>Platform Features</div>
+      <h2 class="s-title" style="margin-bottom:0">Everything you need for<br>PCB manufacturing</h2>
+    </div>
+    <a href="#" class="btn-outline" style="align-self:flex-end">Explore All Capabilities</a>
+  </div>
+  <p class="s-sub">From rapid prototyping to volume production, our platform handles the entire workflow with precision and speed.</p>
+  <div class="caps-grid">
+    <div class="cap-card">
+      <div class="cap-eyebrow">Quote Engine</div>
+      <h4>Instant Quote Engine</h4>
+      <p>Upload your Gerber files and receive real-time pricing with automated layer detection, board size calculation, and complexity scoring.</p>
+      <div class="cap-metric">&lt; 2 second response</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-eyebrow">DFM</div>
+      <h4>Advanced DFM Validation</h4>
+      <p>Automated Design for Manufacturing checks identify potential issues before production, ensuring first-time success.</p>
+      <div class="cap-metric">99.2% first-pass yield</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-eyebrow">Speed</div>
+      <h4>Fast-Track Production</h4>
+      <p>Need it urgently? Our 24-hour fast-track option prioritizes your order through dedicated production lines.</p>
+      <div class="cap-metric">24h turnaround available</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-eyebrow">Quality</div>
+      <h4>Quality Assurance</h4>
+      <p>Every board undergoes rigorous testing including AOI inspection, electrical testing, and visual QC before shipping.</p>
+      <div class="cap-metric">ISO 9001 certified</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-eyebrow">Assembly</div>
+      <h4>PCBA Assembly</h4>
+      <p>Full turnkey assembly with access to 660K+ components. Upload your BOM and get instant availability and pricing.</p>
+      <div class="cap-metric">660K+ components</div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-eyebrow">Engineering</div>
+      <h4>Engineering Services</h4>
+      <p>Access expert PCB layout review, DFM optimization, and design consultation from experienced engineers.</p>
+      <div class="cap-metric">Expert support</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="s s-cta" id="s-cta">
+  <div class="s-eyebrow" style="justify-content:center"><span class="s-eyebrow-line"></span>Get Started</div>
+  <h2 class="s-title">Ready to start your<br>next project?</h2>
+  <p class="s-sub">Join thousands of engineers who trust TRING for their PCB manufacturing. Get your instant quote in under 2 seconds.</p>
+  <div class="cta-upload-box" id="cta-upload">
+    <div class="upload-icon-wrap">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <h4>Drop your Gerber files here</h4>
+    <p>Supports .zip, .rar, .gbr formats</p>
+    <div class="upload-chips" style="justify-content:center">
+      <span class="chip">AUTO-DETECT</span>
+      <span class="chip">DFM CHECK</span>
+      <span class="chip">3D PREVIEW</span>
+      <span class="chip">SECURE UPLOAD</span>
+    </div>
+  </div>
+  <div class="cta-btns">
+    <a href="#" class="btn-primary">Upload Your Gerber</a>
+    <a href="#" class="btn-outline">Contact Sales</a>
+  </div>
+  <div class="cert-strip" id="cert-strip">
+    <span class="cert-item">No minimum order</span>
+    <span class="cert-item">Free DFM check</span>
+    <span class="cert-item">Global shipping</span>
+    <span class="cert-item">24/7 support</span>
+    <span class="cert-item">ISO 9001:2015</span>
+    <span class="cert-item">IATF 16949</span>
+    <span class="cert-item">UL Listed</span>
+  </div>
+</section>
+
+</div><!-- /scroll-sections -->
+
+<!-- FOOTER -->
 <footer>
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <a href="#" class="nav-logo" style="display:inline-flex">
-        <span class="nav-logo-dot"></span>TRING
-      </a>
-      <p>From design to production — instantly. Complete engineering solutions for PCB manufacturing and assembly.</p>
+  <div class="footer-top">
+    <div>
+      <a href="#" class="nav-logo"><div class="nav-logo-mark">T</div> TRING</a>
+      <p class="footer-brand-desc">From design to production — instantly. Complete engineering solutions for PCB manufacturing and assembly.</p>
+      <div class="footer-certs">
+        <span class="footer-cert-badge">ISO 9001:2015</span>
+        <span class="footer-cert-badge">ISO 14001</span>
+        <span class="footer-cert-badge">IATF 16949</span>
+        <span class="footer-cert-badge">UL Listed</span>
+      </div>
     </div>
     <div class="footer-col">
       <h5>Products</h5>
@@ -951,7 +1189,7 @@
         <li><a href="#">Capabilities</a></li>
         <li><a href="#">Design Guidelines</a></li>
         <li><a href="#">Material Database</a></li>
-        <li><a href="#">API Docs</a></li>
+        <li><a href="#">API Documentation</a></li>
         <li><a href="#">Blog</a></li>
       </ul>
     </div>
@@ -970,9 +1208,9 @@
       <ul>
         <li><a href="#">Help Center</a></li>
         <li><a href="#">Shipping Info</a></li>
+        <li><a href="#">Returns</a></li>
         <li><a href="#">Order Status</a></li>
         <li><a href="#">FAQs</a></li>
-        <li><a href="#">24/7 Chat</a></li>
       </ul>
     </div>
   </div>
@@ -985,34 +1223,36 @@
     </div>
   </div>
 </footer>
+</div><!-- /page -->
 
-<!-- UI Controls -->
-<div id="scroll-hint">
-  <span>SCROLL</span>
-  <div class="scroll-line"></div>
-</div>
-
+<!-- UI -->
+<div id="scroll-hint"><span>SCROLL</span><div class="scroll-line"></div></div>
 <div id="phase-dots">
-  <div class="phase-dot active"></div>
-  <div class="phase-dot"></div>
-  <div class="phase-dot"></div>
-  <div class="phase-dot"></div>
+  <div class="pdot active"></div>
+  <div class="pdot"></div>
+  <div class="pdot"></div>
+  <div class="pdot"></div>
 </div>
-
 <button id="mute-btn" aria-label="Toggle sound">
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
     <path d="M11 5L6 9H2v6h4l5 4V5z"/>
     <path class="sound-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
   </svg>
 </button>
 
-<script type="module" src="/src/main.js"></script>
 <script>
-  // Nav scroll effect
-  const nav = document.getElementById('main-nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 40);
-  }, { passive: true });
+  window.addEventListener('scroll',()=>{
+    document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 30);
+  },{passive:true});
+
+  // Upload drag
+  const uz = document.getElementById('upload-zone');
+  if(uz){
+    uz.addEventListener('dragover',e=>{e.preventDefault();uz.style.borderColor='var(--tring)';uz.style.background='var(--tring-10)';});
+    uz.addEventListener('dragleave',()=>{uz.style.borderColor='';uz.style.background='';});
+    uz.addEventListener('drop',e=>{e.preventDefault();uz.querySelector('h4').textContent='✓ File received';uz.style.borderColor='';uz.style.background='';});
+  }
 </script>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>
