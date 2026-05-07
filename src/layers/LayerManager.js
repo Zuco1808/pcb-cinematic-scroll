@@ -18,7 +18,7 @@ export class LayerManager {
     group.position.z = -9;
 
     const lineMat = new THREE.LineBasicMaterial({
-      color: 0x003300,
+      color: 0x0a1f35,
       transparent: true,
       opacity: 0.5,
     });
@@ -39,7 +39,7 @@ export class LayerManager {
 
     // Veliki plane za fog catch
     const planeMat = new THREE.MeshStandardMaterial({
-      color: 0x050a05,
+      color: 0x040d18,
       roughness: 1.0,
       metalness: 0.0,
       transparent: true,
@@ -58,7 +58,7 @@ export class LayerManager {
     const group = new THREE.Group();
     group.position.z = -4;
 
-    const colors = [0x1a6b1a, 0x0d4d0d, 0x2a8a2a];
+    const colors = [0x0d2a4a, 0x0a1e36, 0x102840];
     const fragData = [
       { w: 1.2, d: 0.8, x: -6, y: 2,  r: 0.3  },
       { w: 0.8, d: 1.2, x:  6, y: -1, r: -0.5 },
@@ -114,7 +114,7 @@ export class LayerManager {
     geometry.setAttribute('size',     new THREE.BufferAttribute(sizes, 1));
 
     const material = new THREE.PointsMaterial({
-      color: 0x00ff41,
+      color: 0x4fc3f7,
       size: 0.035,
       transparent: true,
       opacity: 0.35,

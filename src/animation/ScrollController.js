@@ -153,8 +153,8 @@ export class ScrollController {
 
     if (this.sm.pcb) {
       if (phase === 'detail') {
-        this.sm.pcb.highlightComponent('ic', 0x00ff41);
-        this.sm.pcb.highlightComponent('cap', 0x4fc3f7);
+        this.sm.pcb.highlightComponent('ic', 0x4fc3f7);
+        this.sm.pcb.highlightComponent('cap', 0xD4AF37);
       } else {
         this.sm.pcb.resetHighlights();
       }

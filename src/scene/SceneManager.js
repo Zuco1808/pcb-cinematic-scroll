@@ -51,7 +51,7 @@ export class SceneManager {
 
   _initScene() {
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x0a0a0f, 0.032);
+    this.scene.fog = new THREE.FogExp2(0x06101a, 0.028);
   }
 
   _initCamera() {
