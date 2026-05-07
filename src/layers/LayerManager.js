@@ -18,7 +18,7 @@ export class LayerManager {
     group.position.z = -9;
 
     const lineMat = new THREE.LineBasicMaterial({
-      color: 0xb8d8ee,
+      color: 0xc8dff0,
       transparent: true,
       opacity: 0.4,
     });
@@ -39,7 +39,7 @@ export class LayerManager {
 
     // Veliki plane za fog catch
     const planeMat = new THREE.MeshStandardMaterial({
-      color: 0xeef7fc,
+      color: 0xf0f7fd,
       roughness: 1.0,
       metalness: 0.0,
       transparent: true,
